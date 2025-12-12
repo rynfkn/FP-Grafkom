@@ -1,129 +1,267 @@
-// js/room.js
 import * as THREE from "three";
 
-/**
- * Membuat tekstur prosedural sederhana untuk lantai ubin
- * agar kita tidak perlu meload gambar eksternal (jpg/png) saat ini.
- */
+// --- 1. FLOOR (LANTAI) ---
+
 function createTileTexture() {
   const canvas = document.createElement("canvas");
   canvas.width = 512;
   canvas.height = 512;
   const context = canvas.getContext("2d");
 
-  // Warna dasar (Grout/Semen)
-  context.fillStyle = "#6e4c35"; 
+  // Warna Grout (Semen - Gelap)
+  context.fillStyle = "#4a3c31";
   context.fillRect(0, 0, 512, 512);
 
-  // Warna Ubin (Terracotta)
-  context.fillStyle = "#8b5a2b"; 
+  const tileSize = 60; 
+  const gap = 4;       
+
+  const tilesAcross = 512 / (tileSize + gap);
   
-  // Gambar kotak-kotak ubin (misal 4x4 ubin di texture ini)
-  const tileSize = 120; // ukuran ubin
-  const gap = 8; // celah semen
-  
-  for (let y = 0; y < 4; y++) {
-    for (let x = 0; x < 4; x++) {
-        context.fillRect(
-            x * (tileSize + gap) + gap/2, 
-            y * (tileSize + gap) + gap/2, 
-            tileSize, 
-            tileSize
-        );
+  for (let y = 0; y < tilesAcross; y++) {
+    for (let x = 0; x < tilesAcross; x++) {
+      const variance = (Math.random() - 0.5) * 10;
+      const r = 192 + variance;
+      const g = 122 + variance;
+      const b = 85 + variance;
+      context.fillStyle = `rgb(${r},${g},${b})`;
+
+      context.fillRect(
+        x * (tileSize + gap) + gap / 2,
+        y * (tileSize + gap) + gap / 2,
+        tileSize,
+        tileSize
+      );
     }
   }
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(4, 4); // Ulangi tekstur di lantai yang luas
+  texture.repeat.set(4, 4); 
+  texture.colorSpace = THREE.SRGBColorSpace;
   return texture;
 }
 
-export function createRoom(scene) {
-  // --- 1. Lantai Ubin ---
+export function createFloor(width, depth) {
   const tileTexture = createTileTexture();
-  const floorMaterial = new THREE.MeshStandardMaterial({
+  const material = new THREE.MeshStandardMaterial({
     map: tileTexture,
     roughness: 0.8,
   });
 
-  const floor = new THREE.Mesh(
-    new THREE.BoxGeometry(20, 0.2, 20), // Pakai Box biar lantai punya ketebalan dikit
-    floorMaterial
-  );
-  floor.position.y = -0.1; // Turunkan sedikit agar y=0 adalah permukaan lantai
+  const geometry = new THREE.BoxGeometry(width, 0.5, depth);
+  const floor = new THREE.Mesh(geometry, material);
+  floor.position.y = -0.25; 
   floor.receiveShadow = true;
-  scene.add(floor);
+  return floor;
+}
 
-  // --- 2. Material Dinding ---
-  const wallMaterial = new THREE.MeshStandardMaterial({
-    color: 0xf2f2f0, // Putih tulang
-    roughness: 0.5,
-  });
+// --- 2. WALLS & WINDOWS HELPER ---
 
-  const glassMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x88ccee,
-    metalness: 0,
-    roughness: 0,
-    transmission: 0.9, // Kaca bening
-    thickness: 0.5,
-    transparent: true,
-    opacity: 0.3
-  });
-
-  const frameMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 }); // Aluminium gelap
-
-  // --- 3. Dinding Belakang (Dengan Jendela) ---
-  // Kita bangun dinding ini dari balok-balok terpisah agar ada lubang jendelanya
-  
+/**
+ * Membuat Dinding (Solid atau dengan Lubang Jendela)
+ * Mengembalikan THREE.Group yang titik pivotnya ada di dasar dinding (y=0).
+ */
+export function createWall(width, height, thickness = 0.4, windowConfig = []) {
   const wallGroup = new THREE.Group();
-  
-  // Bagian Bawah Jendela (Dwarf wall)
-  const bottomWall = new THREE.Mesh(new THREE.BoxGeometry(20, 2, 0.5), wallMaterial);
-  bottomWall.position.set(0, 1, -10);
+  const material = new THREE.MeshStandardMaterial({ color: 0xfdf5e6, roughness: 0.6 });
+
+  // Jika tidak ada jendela, dinding solid sederhana
+  if (!windowConfig || windowConfig.length === 0) {
+    const solidWall = new THREE.Mesh(new THREE.BoxGeometry(width, height, thickness), material);
+    solidWall.position.y = height / 2;
+    solidWall.castShadow = true;
+    solidWall.receiveShadow = true;
+    wallGroup.add(solidWall);
+    return wallGroup;
+  }
+
+  // Jika ada jendela, bangun dinding secara prosedural
+  const bottomHeight = 1.5; 
+  const topHeight = 1.0;    
+  const windowAreaHeight = height - bottomHeight - topHeight;
+
+  // 1. Dinding Bawah
+  const bottomWall = new THREE.Mesh(new THREE.BoxGeometry(width, bottomHeight, thickness), material);
+  bottomWall.position.y = bottomHeight / 2;
   bottomWall.castShadow = true;
   bottomWall.receiveShadow = true;
   wallGroup.add(bottomWall);
 
-  // Bagian Atas Jendela (Header)
-  const topWall = new THREE.Mesh(new THREE.BoxGeometry(20, 1, 0.5), wallMaterial);
-  topWall.position.set(0, 5.5, -10); // Tinggi total dinding misal 6m
+  // 2. Dinding Atas
+  const topWall = new THREE.Mesh(new THREE.BoxGeometry(width, topHeight, thickness), material);
+  topWall.position.y = height - topHeight / 2;
   topWall.castShadow = true;
+  topWall.receiveShadow = true;
   wallGroup.add(topWall);
 
-  // Tiang-tiang pemisah jendela (Vertical Columns)
-  // Kita buat 3 tiang vertikal agar jendela terbagi
-  for(let x of [-9.5, -3, 3, 9.5]) {
-      const pillar = new THREE.Mesh(new THREE.BoxGeometry(1, 4, 0.5), wallMaterial);
-      pillar.position.set(x, 3.5, -10);
+  // 3. Pilar di antara jendela
+  let currentX = -width / 2;
+  const sortedWindows = [...windowConfig].sort((a, b) => a.x - b.x);
+
+  sortedWindows.forEach((win) => {
+    const gapWidth = (win.x - win.width/2) - currentX;
+    if (gapWidth > 0.01) {
+      const pillar = new THREE.Mesh(new THREE.BoxGeometry(gapWidth, windowAreaHeight, thickness), material);
+      pillar.position.set(currentX + gapWidth/2, bottomHeight + windowAreaHeight/2, 0);
       pillar.castShadow = true;
+      pillar.receiveShadow = true;
       wallGroup.add(pillar);
+    }
+    currentX = win.x + win.width/2;
+  });
+
+  // Pilar penutup di kanan
+  const remainingWidth = (width / 2) - currentX;
+  if (remainingWidth > 0.01) {
+    const endPillar = new THREE.Mesh(new THREE.BoxGeometry(remainingWidth, windowAreaHeight, thickness), material);
+    endPillar.position.set(currentX + remainingWidth/2, bottomHeight + windowAreaHeight/2, 0);
+    endPillar.castShadow = true;
+    endPillar.receiveShadow = true;
+    wallGroup.add(endPillar);
   }
 
-  // Kaca Jendela (Window Panes)
-  // Isi celah dengan kaca
-  const glass = new THREE.Mesh(new THREE.BoxGeometry(18, 3.5, 0.1), glassMaterial);
-  glass.position.set(0, 3.5, -10);
-  wallGroup.add(glass);
+  return wallGroup;
+}
 
-  // Bingkai Jendela (Frame Garis Horizontal)
-  const frameBar = new THREE.Mesh(new THREE.BoxGeometry(20, 0.1, 0.6), frameMaterial);
-  frameBar.position.set(0, 3.5, -10); // Garis tengah jendela
-  wallGroup.add(frameBar);
+/**
+ * Membuat Bingkai Jendela dan Kaca
+ */
+export function createWindows(windowConfig, wallThickness = 0.4) {
+  const group = new THREE.Group();
+  const frameMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }); // Frame Putih
+  const glassMat = new THREE.MeshPhysicalMaterial({
+    // color: 0xaaccff,
+    metalness: 0.1,
+    roughness: 0,
+    transmission: 0.6,
+    transparent: true,
+    opacity: 0.5
+  });
 
-  scene.add(wallGroup);
+  windowConfig.forEach(win => {
+    // Dimensi Frame
+    const frameW = 0.12; // Lebar frame sekeliling
+    const frameD = wallThickness + 0.06; // Depth: sedikit menonjol dari dinding
 
-  // --- 4. Dinding Samping (Solid) ---
-  // Kiri
-  const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, 6, 20), wallMaterial);
-  leftWall.position.set(-10, 3, 0);
-  leftWall.receiveShadow = true;
-  scene.add(leftWall);
+    // --- 1. Frame Luar ---
+    
+    // Atas
+    const top = new THREE.Mesh(new THREE.BoxGeometry(win.width, frameW, frameD), frameMat);
+    top.position.set(win.x, win.y + win.height/2 - frameW/2, 0);
+    top.castShadow = true;
+    group.add(top);
 
-  // Kanan
-  const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, 6, 20), wallMaterial);
-  rightWall.position.set(10, 3, 0);
-  rightWall.receiveShadow = true;
-  scene.add(rightWall);
+    // Bawah (Sill / Ambang - Sedikit lebih tebal depth-nya)
+    const sillDepth = frameD + 0.05; 
+    const bottom = new THREE.Mesh(new THREE.BoxGeometry(win.width, frameW, sillDepth), frameMat);
+    bottom.position.set(win.x, win.y - win.height/2 + frameW/2, 0);
+    bottom.castShadow = true;
+    bottom.receiveShadow = true;
+    group.add(bottom);
+
+    // Kiri & Kanan (Tingginya dikurangi frame atas/bawah)
+    const sideH = win.height - frameW * 2;
+    
+    const left = new THREE.Mesh(new THREE.BoxGeometry(frameW, sideH, frameD), frameMat);
+    left.position.set(win.x - win.width/2 + frameW/2, win.y, 0);
+    left.castShadow = true;
+    group.add(left);
+
+    const right = new THREE.Mesh(new THREE.BoxGeometry(frameW, sideH, frameD), frameMat);
+    right.position.set(win.x + win.width/2 - frameW/2, win.y, 0);
+    right.castShadow = true;
+    group.add(right);
+
+    // --- 2. Palang Tengah (Grid +) ---
+    const barThick = 0.06; // Lebih tipis dari frame utama
+    const barDepth = frameD - 0.05; // Sedikit lebih tipis depth-nya (inset)
+
+    // Horizontal
+    const hMid = new THREE.Mesh(new THREE.BoxGeometry(win.width - frameW*2, barThick, barDepth), frameMat);
+    hMid.position.set(win.x, win.y, 0);
+    group.add(hMid);
+    
+    // Vertikal
+    const vMid = new THREE.Mesh(new THREE.BoxGeometry(barThick, sideH, barDepth), frameMat);
+    vMid.position.set(win.x, win.y, 0);
+    group.add(vMid);
+
+    // --- 3. Kaca ---
+    // Pastikan kaca mengisi penuh area dalam frame
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(win.width - frameW, win.height - frameW, 0.05), glassMat);
+    glass.position.set(win.x, win.y, 0);
+    group.add(glass);
+  });
+
+  return group;
+}
+
+export function createRoom(scene) {
+  // --- A. LANTAI ---
+  const floorSize = 15;
+  const floor = createFloor(floorSize, floorSize);
+  scene.add(floor);
+
+  const wallHeight = 5;
+  const wallThickness = 0.4;
+
+  // --- B. DINDING DEPAN (Front Wall - Z axis negatif) ---
+  // Lubang jendela dinding dibuat pada: bottomHeight (1.5) + windowArea (2.5)/2 = y 2.75
+  // Maka, posisi y jendela juga harus 2.75 agar pas.
+  const winConfigFront = [
+    { x: -2.2, width: 3.2, height: 3, y: 2.75 }, // Y diubah dari 2.5 ke 2.75
+    { x: 1, width: 3.2, height: 3, y: 2.75 }   // Y diubah dari 2.5 ke 2.75
+  ];
+
+  // Grouping dinding + jendela agar frame ikut terpasang
+  const frontGroup = new THREE.Group();
+  
+  // 1. Buat Dinding berlubang
+  const frontWall = createWall(12, wallHeight, wallThickness, winConfigFront);
+  frontGroup.add(frontWall);
+
+  // 2. Tambahkan Bingkai & Kaca
+  const frontWindows = createWindows(winConfigFront, wallThickness);
+  frontGroup.add(frontWindows);
+
+  // Posisi sesuai layout manual Anda
+  frontGroup.position.set(1.5, 0, -7.26);
+  scene.add(frontGroup);
+
+
+  // --- C. DINDING KANAN (Right Wall - X axis positif) ---
+  const winConfigRight = [
+    { x: 0, width: 3, height: 3, y: 2.75 },
+    { x: 3, width: 3, height: 3, y: 2.75 },
+    { x: -3, width: 3, height: 3, y: 2.75 },
+  ];
+
+  const rightGroup = new THREE.Group();
+  
+  const rightWall = createWall(15, wallHeight, wallThickness, winConfigRight);
+  rightGroup.add(rightWall);
+
+  const rightWindows = createWindows(winConfigRight, wallThickness);
+  rightGroup.add(rightWindows);
+
+  // Posisi dan Rotasi sesuai layout manual Anda
+  rightGroup.position.set(7.26, 0, 0);
+  rightGroup.rotation.y = -Math.PI / 2;
+  scene.add(rightGroup);
+
+
+  // --- D. DINDING KIRI (Solid Left Wall) ---
+  // Kita gunakan createWall tanpa windowConfig untuk dinding solid
+  const leftGroup = createWall(15, wallHeight, wallThickness);
+  leftGroup.position.set(-7.26, 0, 0);
+  leftGroup.rotation.y = Math.PI / 2;
+  scene.add(leftGroup);
+
+
+  // --- E. DINDING DALAM (Inside/Back Wall) ---
+  // const backGroup = createWall(10, wallHeight, wallThickness);
+  // backGroup.position.set(0, 0, 5);
+  // backGroup.rotation.y = -10 * (Math.PI / 180); // Rotasi -10 derajat
+  // scene.add(backGroup);
 }

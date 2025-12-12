@@ -46,71 +46,70 @@ createRoom(scene);
 
 const table1 = createPedestalTable();
 table1.scale.set(1.3, 1.3, 1.3);
-table1.position.set(-8, 0, 0);
+table1.position.set(0, 0, -8);
 scene.add(table1);
 
 const table2 = createPedestalTable();
 table2.scale.set(1.3, 1.3, 1.3);
-table2.position.set(-8, 0, -3.5);
+table2.position.set(-3.5, 0, -8);
 scene.add(table2);
 
 const table3 = createPedestalTable();
 table3.scale.set(1.3, 1.3, 1.3);
-table3.position.set(-8, 0, 3.5);
+table3.position.set(3.5, 0, -8);
 scene.add(table3);
 
 const table4 = createPedestalTable();
 table4.scale.set(1.3, 1.3, 1.3);
-table4.position.set(1.5, 0, -8);
+table4.position.set(8, 0, 1.5);
 scene.add(table4);
 
 const table5 = createPedestalTable();
 table5.scale.set(1.3, 1.3, 1.3);
-table5.position.set(-2, 0, -8);
+table5.position.set(8, 0, 5);
 scene.add(table5);
 
 const table6 = createPedestalTable();
 table6.scale.set(1.3, 1.3, 1.3);
-table6.position.set(5, 0, -8);
+table6.position.set(8, 0, -2);
 scene.add(table6);
 
 const bench1 = createBench();
-bench1.position.set(-7.5, 0, 5.5);
+bench1.position.set(-5.5, 0, -7.5);
 bench1.scale.set(1.3, 1.3, 1.3);
+bench1.rotation.y = Math.PI / 2;
 scene.add(bench1);
 
 const bench2 = createBench();
-bench2.position.set(-6, 0, 2.5);
+bench2.position.set(-2.5, 0, -6);
 bench2.scale.set(1.3, 1.3, 1.3);
-bench2.rotation.y = Math.PI / 2;
 scene.add(bench2);
 
 const bench3 = createBench();
-bench3.position.set(-6, 0, -2.5);
+bench3.position.set(2.5, 0, -6);
 bench3.scale.set(1.3, 1.3, 1.3);
-bench3.rotation.y = Math.PI / 2;
 scene.add(bench3);
 
 const bench4 = createBench();
-bench4.position.set(0.5, 0, -6);
+bench4.position.set(6, 0, 0.5);
+bench4.rotation.y = Math.PI / 2;
 bench4.scale.set(1.3, 1.3, 1.3);
 scene.add(bench4);
 
 const bench5 = createBench();
-bench5.position.set(5, 0, -6);
+bench5.position.set(6, 0, 5);
+bench5.rotation.y = Math.PI / 2;
 bench5.scale.set(1.3, 1.3, 1.3);
 scene.add(bench5);
 
 const bench6 = createBench();
-bench6.position.set(-3.2, 0, -7.5);
+bench6.position.set(7.5, 0, -3.2);
 bench6.scale.set(1.3, 1.3, 1.3);
-bench6.rotation.y = Math.PI / 2;
 scene.add(bench6);
 
 const bench7 = createBench();
-bench7.position.set(-4.6, 0, -6.7);
+bench7.position.set(6.7, 0, -4.6);
 bench7.scale.set(1.3, 1.3, 1.3);
-bench7.rotation.y = Math.PI / 2;
 scene.add(bench7);
 
 // --------------------------------------------------
@@ -131,8 +130,8 @@ loader.load(
     const size = box.getSize(new THREE.Vector3());
 
     const yOffset = -box.min.y;
-    vendingMachine.position.set(-8.65, yOffset, -8);
-    vendingMachine.rotation.y = -Math.PI / 2; 
+    vendingMachine.position.set(8, yOffset, -8);
+    vendingMachine.rotation.y = Math.PI; 
 
     vendingMachine.traverse((child) => {
       if (child.isMesh) {

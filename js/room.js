@@ -76,24 +76,47 @@ export function createWall(width, height, thickness = 0.4, windowConfig = []) {
     return wallGroup;
   }
 
-  // Jika ada jendela, bangun dinding secara prosedural
-  const bottomHeight = 1.5; 
-  const topHeight = 1.0;    
+  // --- LOGIKA DINAMIS UNTUK MENGHINDARI GAP ---
+  // Kita hitung tinggi dinding bawah & atas berdasarkan konfigurasi jendela pertama.
+  // Asumsinya semua jendela dalam satu dinding memiliki ketinggian vertikal yang sama (sejajar).
+  
+  let bottomHeight = 1.5; // Default jika error
+  let topHeight = 1.0;    // Default jika error
+
+  if (windowConfig.length > 0) {
+    const win = windowConfig[0];
+    const winBottomY = win.y - (win.height / 2);
+    const winTopY = win.y + (win.height / 2);
+
+    // Dinding bawah setinggi bagian bawah jendela
+    bottomHeight = winBottomY;
+    // Dinding atas adalah sisa dari tinggi total dikurangi bagian atas jendela
+    topHeight = height - winTopY;
+
+    // Safety check agar tidak negatif
+    if (bottomHeight < 0) bottomHeight = 0;
+    if (topHeight < 0) topHeight = 0;
+  }
+
   const windowAreaHeight = height - bottomHeight - topHeight;
 
   // 1. Dinding Bawah
-  const bottomWall = new THREE.Mesh(new THREE.BoxGeometry(width, bottomHeight, thickness), material);
-  bottomWall.position.y = bottomHeight / 2;
-  bottomWall.castShadow = true;
-  bottomWall.receiveShadow = true;
-  wallGroup.add(bottomWall);
+  if (bottomHeight > 0.01) {
+    const bottomWall = new THREE.Mesh(new THREE.BoxGeometry(width, bottomHeight, thickness), material);
+    bottomWall.position.y = bottomHeight / 2;
+    bottomWall.castShadow = true;
+    bottomWall.receiveShadow = true;
+    wallGroup.add(bottomWall);
+  }
 
   // 2. Dinding Atas
-  const topWall = new THREE.Mesh(new THREE.BoxGeometry(width, topHeight, thickness), material);
-  topWall.position.y = height - topHeight / 2;
-  topWall.castShadow = true;
-  topWall.receiveShadow = true;
-  wallGroup.add(topWall);
+  if (topHeight > 0.01) {
+    const topWall = new THREE.Mesh(new THREE.BoxGeometry(width, topHeight, thickness), material);
+    topWall.position.y = height - topHeight / 2;
+    topWall.castShadow = true;
+    topWall.receiveShadow = true;
+    wallGroup.add(topWall);
+  }
 
   // 3. Pilar di antara jendela
   let currentX = -width / 2;
@@ -131,7 +154,6 @@ export function createWindows(windowConfig, wallThickness = 0.4) {
   const group = new THREE.Group();
   const frameMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }); // Frame Putih
   const glassMat = new THREE.MeshPhysicalMaterial({
-    // color: 0xaaccff,
     metalness: 0.1,
     roughness: 0,
     transmission: 0.6,
@@ -199,69 +221,66 @@ export function createWindows(windowConfig, wallThickness = 0.4) {
 
 export function createRoom(scene) {
   // --- A. LANTAI ---
-  const floorSize = 15;
-  const floor = createFloor(floorSize, floorSize);
+  const floorSize_X = 21;
+  const floorSize_Z = 25;
+  const floor = createFloor(floorSize_X, floorSize_Z);
+  floor.position.set(0, 0, 2);
   scene.add(floor);
 
-  const wallHeight = 5;
-  const wallThickness = 0.4;
+  const wallHeight = 7;
+  const wallThickness = 0.5;
 
-  // --- B. DINDING DEPAN (Front Wall - Z axis negatif) ---
-  // Lubang jendela dinding dibuat pada: bottomHeight (1.5) + windowArea (2.5)/2 = y 2.75
-  // Maka, posisi y jendela juga harus 2.75 agar pas.
   const winConfigFront = [
-    { x: -2.2, width: 3.2, height: 3, y: 2.75 }, // Y diubah dari 2.5 ke 2.75
-    { x: 1, width: 3.2, height: 3, y: 2.75 }   // Y diubah dari 2.5 ke 2.75
+    { x: -3.5, width: 4, height: 4, y: 4 }, 
+    { x: 1, width: 4, height: 4, y: 4 }   
   ];
 
-  // Grouping dinding + jendela agar frame ikut terpasang
   const frontGroup = new THREE.Group();
   
-  // 1. Buat Dinding berlubang
-  const frontWall = createWall(12, wallHeight, wallThickness, winConfigFront);
+  const frontWall = createWall(17, wallHeight, wallThickness, winConfigFront);
+  frontWall.position.set(1.75, 0, 0); 
   frontGroup.add(frontWall);
 
-  // 2. Tambahkan Bingkai & Kaca
   const frontWindows = createWindows(winConfigFront, wallThickness);
+  frontWindows.position.set(1.75, 0, 0); 
   frontGroup.add(frontWindows);
 
-  // Posisi sesuai layout manual Anda
-  frontGroup.position.set(1.5, 0, -7.26);
+  // Posisikan Group di Z = -10
+  frontGroup.position.set(0, 0, -10);
   scene.add(frontGroup);
 
 
-  // --- C. DINDING KANAN (Right Wall - X axis positif) ---
+  // --- C. DINDING KANAN (Right Wall - X axis positif +10) ---
   const winConfigRight = [
-    { x: 0, width: 3, height: 3, y: 2.75 },
-    { x: 3, width: 3, height: 3, y: 2.75 },
-    { x: -3, width: 3, height: 3, y: 2.75 },
+    { x: -4.5, width: 4, height: 4, y: 4 },
+    { x: 0, width: 4, height: 4, y: 4 },
+    { x: 4.5, width: 4, height: 4, y: 4 },
   ];
 
   const rightGroup = new THREE.Group();
   
-  const rightWall = createWall(15, wallHeight, wallThickness, winConfigRight);
+  // Gunakan lebar 20
+  const rightWall = createWall(20, wallHeight, wallThickness, winConfigRight);
   rightGroup.add(rightWall);
 
   const rightWindows = createWindows(winConfigRight, wallThickness);
   rightGroup.add(rightWindows);
 
-  // Posisi dan Rotasi sesuai layout manual Anda
-  rightGroup.position.set(7.26, 0, 0);
+  // Posisikan di X = 10, rotasi -90 derajat
+  rightGroup.position.set(10, 0, 0);
   rightGroup.rotation.y = -Math.PI / 2;
   scene.add(rightGroup);
 
 
-  // --- D. DINDING KIRI (Solid Left Wall) ---
-  // Kita gunakan createWall tanpa windowConfig untuk dinding solid
-  const leftGroup = createWall(15, wallHeight, wallThickness);
-  leftGroup.position.set(-7.26, 0, 0);
+  // --- D. DINDING KIRI (Solid Left Wall - X axis negatif -10) ---
+  const leftGroup = createWall(20, wallHeight, wallThickness);
+  leftGroup.position.set(-10, 0, 0);
   leftGroup.rotation.y = Math.PI / 2;
   scene.add(leftGroup);
 
-
-  // --- E. DINDING DALAM (Inside/Back Wall) ---
-  // const backGroup = createWall(10, wallHeight, wallThickness);
-  // backGroup.position.set(0, 0, 5);
-  // backGroup.rotation.y = -10 * (Math.PI / 180); // Rotasi -10 derajat
-  // scene.add(backGroup);
+  // --- E. DINDING BELAKANG (Solid Back Wall - Z axis positif +10) ---
+  const backGroup = createWall(13, wallHeight, wallThickness);
+  backGroup.position.set(0, 0, 10);
+  backGroup.rotation.y = -10 * (Math.PI / 180);
+  scene.add(backGroup);
 }

@@ -221,10 +221,10 @@ export function createWindows(windowConfig, wallThickness = 0.4) {
 
 export function createRoom(scene) {
   // --- A. LANTAI ---
-  const floorSize_X = 21;
-  const floorSize_Z = 25;
+  const floorSize_X = 22;
+  const floorSize_Z = 30;
   const floor = createFloor(floorSize_X, floorSize_Z);
-  floor.position.set(0, 0, 2);
+  floor.position.set(-0.5, 0, 4.5);
   scene.add(floor);
 
   const wallHeight = 7;
@@ -252,18 +252,20 @@ export function createRoom(scene) {
 
   // --- C. DINDING KANAN (Right Wall - X axis positif +10) ---
   const winConfigRight = [
-    { x: -4.5, width: 4, height: 4, y: 4 },
-    { x: 0, width: 4, height: 4, y: 4 },
-    { x: 4.5, width: 4, height: 4, y: 4 },
+    { x: -5.5, width: 4, height: 4, y: 4 },
+    { x: -1, width: 4, height: 4, y: 4 },
+    { x: 3.5, width: 4, height: 4, y: 4 },
   ];
 
   const rightGroup = new THREE.Group();
   
   // Gunakan lebar 20
-  const rightWall = createWall(20, wallHeight, wallThickness, winConfigRight);
+  const rightWall = createWall(25, wallHeight, wallThickness, winConfigRight);
+  rightWall.position.set(2.5, 0, 0);
   rightGroup.add(rightWall);
 
   const rightWindows = createWindows(winConfigRight, wallThickness);
+  rightWindows.position.set(2.5, 0, 0);
   rightGroup.add(rightWindows);
 
   // Posisikan di X = 10, rotasi -90 derajat
@@ -274,13 +276,13 @@ export function createRoom(scene) {
 
   // --- D. DINDING KIRI (Solid Left Wall - X axis negatif -10) ---
   const leftGroup = createWall(20, wallHeight, wallThickness);
-  leftGroup.position.set(-10, 0, 0);
+  leftGroup.position.set(-11, 0, 0);
   leftGroup.rotation.y = Math.PI / 2;
   scene.add(leftGroup);
 
   // --- E. DINDING BELAKANG (Solid Back Wall - Z axis positif +10) ---
-  const backGroup = createWall(13, wallHeight, wallThickness);
-  backGroup.position.set(0, 0, 10);
+  const backGroup = createWall(14, wallHeight, wallThickness);
+  backGroup.position.set(-1.4, 0, 12);
   backGroup.rotation.y = -10 * (Math.PI / 180);
   scene.add(backGroup);
 }

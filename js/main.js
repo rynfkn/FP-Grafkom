@@ -210,7 +210,7 @@ scene.add(bench14);
 
 const Magazine = createWallMagazine();
 Magazine.scale.set(1.8, 1.8, 1.8);
-Magazine.position.set(-1.6, 4.5, 12.5);
+Magazine.position.set(-1.6, 4.5, 12.3);
 Magazine.rotation.y = -10 * (Math.PI / 180);
 scene.add(Magazine);
 

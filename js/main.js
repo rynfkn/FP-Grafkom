@@ -5,6 +5,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createRoom } from "./room.js";
 import { createPedestalTable } from './furniture.js';
 import { createBench } from './furniture.js';
+import { createWallMagazine } from './furniture.js';
 
 import { loadVendingMachine } from './loader.js';
 
@@ -45,12 +46,20 @@ controls.enableDamping = true;
 // --------------------------------------------------
 createRoom(scene);
 
-const table1 = createPedestalTable();
+const table1 = createPedestalTable(
+  {
+    topColor: 0xF3F2ED,
+  }
+);
 table1.scale.set(1.3, 1.3, 1.3);
 table1.position.set(0, 0, -8);
 scene.add(table1);
 
-const table2 = createPedestalTable();
+const table2 = createPedestalTable(
+  {
+    topColor: 0xF3F2ED,
+  }
+);
 table2.scale.set(1.3, 1.3, 1.3);
 table2.position.set(-3.5, 0, -8);
 scene.add(table2);
@@ -60,7 +69,11 @@ table3.scale.set(1.3, 1.3, 1.3);
 table3.position.set(3.5, 0, -8);
 scene.add(table3);
 
-const table4 = createPedestalTable();
+const table4 = createPedestalTable(
+  {
+    topColor: 0xF3F2ED,
+  }
+);
 table4.scale.set(1.3, 1.3, 1.3);
 table4.position.set(8, 0, 1.5);
 scene.add(table4);
@@ -190,6 +203,16 @@ bench14.position.set(-7, 0, 8.7);
 bench14.rotation.y = (Math.PI / 2) - (10 * (Math.PI / 180));
 bench14.scale.set(1.3, 1.3, 1.3);
 scene.add(bench14);
+
+// --------------------------------------------------
+// Wall Magazine
+// --------------------------------------------------
+
+const Magazine = createWallMagazine();
+Magazine.scale.set(1.8, 1.8, 1.8);
+Magazine.position.set(-1.6, 4.5, 12.5);
+Magazine.rotation.y = -10 * (Math.PI / 180);
+scene.add(Magazine);
 
 // --------------------------------------------------
 // Load Vending Machine

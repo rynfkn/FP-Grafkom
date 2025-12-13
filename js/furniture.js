@@ -1,21 +1,33 @@
 // js/furniture.js
 import * as THREE from "three";
 
-export function createPedestalTable() {
+export function createPedestalTable({
+    topColor = 0x8F5E38,    // Warna Daun Meja
+    baseColor = 0x8F5E38,   // Warna Kaki/Tiang Utama
+    accentColor = 0x3E2723  // Warna Cincin/Detail Gelap
+} = {}) {
     const tableGroup = new THREE.Group();
 
     // --- 1. Definisi Material ---
-    // Material Kayu Utama (Cokelat Medium - Warm Teak)
-    const woodMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x8D6E63, 
+    
+    // Material Daun Meja (Bisa berbeda dengan kaki)
+    const topMaterial = new THREE.MeshStandardMaterial({ 
+        color: topColor, 
         roughness: 0.5,
         metalness: 0.1
     });
 
+    // Material Kaki/Tiang (Kayu Utama)
+    const baseMaterial = new THREE.MeshStandardMaterial({ 
+        color: baseColor, 
+        roughness: 0.6,
+        metalness: 0.1
+    });
+
     // Material Aksen Gelap (Untuk cincin di tengah tiang)
-    const darkWoodMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x3E2723, // Hampir hitam/kopi
-        roughness: 0.7,
+    const accentMaterial = new THREE.MeshStandardMaterial({ 
+        color: accentColor, 
+        roughness: 0.8,
         metalness: 0.1
     });
 
@@ -30,60 +42,59 @@ export function createPedestalTable() {
     }
 
     // --- 3. Parameter Dimensi Meja ---
-    const tableSize = 2.5;      // Panjang/Lebar Meja Persegi
-    const tableHeight = 1.6;    // Tinggi Total
-    const topThickness = 0.2;   // Tebal Daun Meja
-    const baseWidth = 1.0;      // Lebar kaki bawah
-    const colWidth = 0.6;       // Lebar tiang tengah
+    const tableSize = 2.5;      
+    const tableHeight = 1.6;    
+    const topThickness = 0.2;   
+    const baseWidth = 1.0;      
+    const colWidth = 0.6;       
 
     // --- 4. Konstruksi Geometri ---
 
-    // A. Daun Meja (Table Top) - Persegi
-    const tableTop = createBox(tableSize, topThickness, tableSize, woodMaterial, 0, tableHeight, 0);
+    // A. Daun Meja (Table Top) - Menggunakan topMaterial
+    const tableTop = createBox(tableSize, topThickness, tableSize, topMaterial, 0, tableHeight, 0);
     tableGroup.add(tableTop);
 
     // B. Konstruksi Kaki (Pedestal)
-    // Hitung area kerja vertikal (dari lantai sampai bawah meja)
     const legHeight = tableHeight - (topThickness / 2); 
     
-    // 1. Basis Paling Bawah (Plinth)
+    // 1. Basis Paling Bawah (Plinth) - Menggunakan baseMaterial
     const basePlateHeight = 0.15;
-    const basePlate = createBox(baseWidth + 0.2, basePlateHeight, baseWidth + 0.2, woodMaterial, 0, basePlateHeight/2, 0);
+    const basePlate = createBox(baseWidth + 0.2, basePlateHeight, baseWidth + 0.2, baseMaterial, 0, basePlateHeight/2, 0);
     tableGroup.add(basePlate);
 
-    // 2. Tingkat Basis Kedua
+    // 2. Tingkat Basis Kedua - Menggunakan baseMaterial
     const baseStepHeight = 0.1;
-    const baseStep = createBox(baseWidth, baseStepHeight, baseWidth, woodMaterial, 0, basePlateHeight + baseStepHeight/2, 0);
+    const baseStep = createBox(baseWidth, baseStepHeight, baseWidth, baseMaterial, 0, basePlateHeight + baseStepHeight/2, 0);
     tableGroup.add(baseStep);
 
-    // Hitung sisa ruang untuk tiang vertikal
+    // Hitung sisa ruang
     const currentY = basePlateHeight + baseStepHeight;
     const remainingH = tableHeight - (topThickness / 2) - currentY;
     
-    // Pembagian Proporsi Tiang:
-    // Bawah (Kayu) 40% | Tengah (Aksen Cincin) 20% | Atas (Kayu) 40%
+    // Pembagian Proporsi Tiang
     const lowerColH = remainingH * 0.4;
     const midColH = remainingH * 0.25;
     const upperColH = remainingH * 0.35;
 
-    // Tiang Bawah (Kayu)
-    const lowerCol = createBox(colWidth, lowerColH, colWidth, woodMaterial, 0, currentY + lowerColH/2, 0);
+    // Tiang Bawah (Kayu) - Menggunakan baseMaterial
+    const lowerCol = createBox(colWidth, lowerColH, colWidth, baseMaterial, 0, currentY + lowerColH/2, 0);
     tableGroup.add(lowerCol);
 
-    // Tiang Tengah (Aksen Gelap Berigi/Cincin)
+    // Tiang Tengah (Aksen Cincin)
     const rings = 4;
     const ringH = midColH / rings;
     for(let i = 0; i < rings; i++) {
-        // Skala selang-seling untuk efek tekstur berigi
+        // Skala selang-seling
         const scale = (i % 2 === 0) ? colWidth : colWidth * 0.95; 
         const ringY = currentY + lowerColH + (i * ringH) + ringH/2;
-        const ring = createBox(scale, ringH, scale, darkWoodMaterial, 0, ringY, 0);
+        // Gunakan accentMaterial di sini
+        const ring = createBox(scale, ringH, scale, accentMaterial, 0, ringY, 0);
         tableGroup.add(ring);
     }
 
-    // Tiang Atas (Kayu)
+    // Tiang Atas (Kayu) - Menggunakan baseMaterial
     const upperColY = currentY + lowerColH + midColH + upperColH/2;
-    const upperCol = createBox(colWidth, upperColH, colWidth, woodMaterial, 0, upperColY, 0);
+    const upperCol = createBox(colWidth, upperColH, colWidth, baseMaterial, 0, upperColY, 0);
     tableGroup.add(upperCol);
 
     return tableGroup;
@@ -200,4 +211,116 @@ export function createBench() {
     benchGroup.add(createBox(legSize, legH, legSize, lightWoodMat, legX, legY, -legZ));
 
     return benchGroup;
+}
+
+export function createWallMagazine({
+    frameColor = 0x8D6E63,   // Warna Kayu (Cokelat Medium)
+    boardColor = 0x004D40,   // Warna Kain (Hijau Botol Gelap)
+    metalColor = 0xD7D7D7,   // Warna List Aluminium (Perak)
+    width = 5.0,             // Lebar total
+    height = 2.0             // Tinggi total
+} = {}) {
+    const madingGroup = new THREE.Group();
+
+    // --- 1. Definisi Material ---
+    const frameMat = new THREE.MeshStandardMaterial({ 
+        color: frameColor, 
+        roughness: 0.6,
+        metalness: 0.1 
+    });
+
+    const boardMat = new THREE.MeshStandardMaterial({ 
+        color: boardColor, 
+        roughness: 0.9, // Kasar seperti kain/gabus
+        metalness: 0.0 
+    });
+
+    const metalMat = new THREE.MeshStandardMaterial({ 
+        color: metalColor, 
+        roughness: 0.3, 
+        metalness: 0.8  // Mengkilap seperti aluminium
+    });
+
+    const grooveMat = new THREE.MeshStandardMaterial({
+        color: 0x3E2723, // Warna bayangan gelap untuk efek garis
+        roughness: 1.0
+    });
+
+    // --- 2. Helper Function ---
+    function createBox(w, h, d, material, x, y, z) {
+        const geometry = new THREE.BoxGeometry(w, h, d);
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(x, y, z);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        return mesh;
+    }
+
+    // --- 3. Dimensi Komponen ---
+    const frameThickness = 0.25; // Lebar bingkai kayu
+    const depthFrame = 0.15;     // Ketebalan kayu ke depan
+    const metalWidth = 0.03;     // Lebar list besi
+    const boardDepth = 0.05;     // Ketebalan papan hijau
+
+    // --- 4. Konstruksi Geometri ---
+
+    // A. Papan Utama (Hijau)
+    // Ukuran papan = Total - (Frame kiri kanan) - (List besi kiri kanan)
+    const innerW = width - (frameThickness * 2);
+    const innerH = height - (frameThickness * 2);
+    const board = createBox(innerW, innerH, boardDepth, boardMat, 0, 0, 0);
+    madingGroup.add(board);
+
+    // B. List Aluminium (Inner Trim)
+    // Kita buat kotak pipih di belakang frame kayu tapi di depan papan hijau
+    const trimW = innerW + (metalWidth * 2);
+    const trimH = innerH + (metalWidth * 2);
+    const metalTrim = createBox(trimW, trimH, boardDepth + 0.01, metalMat, 0, 0, 0);
+    madingGroup.add(metalTrim);
+
+    // C. Frame Kayu Luar
+    // Agar rapi, kita buat 4 bagian: Atas, Bawah, Kiri, Kanan.
+
+    // 1. Frame Atas & Bawah (Panjang Full)
+    const topFrame = createBox(width, frameThickness, depthFrame, frameMat, 0, (height/2) - (frameThickness/2), 0.02);
+    const btmFrame = createBox(width, frameThickness, depthFrame, frameMat, 0, -(height/2) + (frameThickness/2), 0.02);
+    madingGroup.add(topFrame);
+    madingGroup.add(btmFrame);
+
+    // 2. Frame Kiri & Kanan (Di antara atas & bawah)
+    const sideH = height - (frameThickness * 2);
+    const sideY = 0;
+    const sideX = (width/2) - (frameThickness/2);
+    
+    const leftFrame = createBox(frameThickness, sideH, depthFrame, frameMat, -sideX, sideY, 0.02);
+    const rightFrame = createBox(frameThickness, sideH, depthFrame, frameMat, sideX, sideY, 0.02);
+    madingGroup.add(leftFrame);
+    madingGroup.add(rightFrame);
+
+    // D. Detail Grooves (Garis-garis pada sisi samping)
+    // Berdasarkan gambar, ada aksen garis horizontal di frame kiri dan kanan.
+    // Kita simulasikan dengan kotak tipis berwarna gelap.
+    
+    const grooveCount = 5;       // Jumlah garis
+    const grooveSpacing = 0.08;  // Jarak antar garis
+    const grooveThick = 0.01;    // Tebal garis
+    const grooveDepth = depthFrame + 0.005; // Sedikit menonjol biar tidak flickering
+
+    // Loop untuk membuat garis di sisi Kiri dan Kanan
+    for(let i = 0; i < grooveCount; i++) {
+        // Kita posisikan di tengah-tengah frame samping (secara vertikal)
+        // Offset Y agar terpusat
+        const startY = -((grooveCount * grooveSpacing) / 2) + (grooveSpacing/2);
+        const yPos = startY + (i * grooveSpacing);
+
+        // Garis Kiri
+        const grooveLeft = createBox(frameThickness, grooveThick, grooveDepth, grooveMat, -sideX, yPos, 0.02);
+        madingGroup.add(grooveLeft);
+
+        // Garis Kanan
+        const grooveRight = createBox(frameThickness, grooveThick, grooveDepth, grooveMat, sideX, yPos, 0.02);
+        madingGroup.add(grooveRight);
+    }
+
+    return madingGroup;
 }

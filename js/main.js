@@ -1,11 +1,12 @@
 // js/main.js
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 import { createRoom } from "./room.js";
 import { createPedestalTable } from './furniture.js';
 import { createBench } from './furniture.js';
+
+import { loadVendingMachine } from './loader.js';
 
 // --------------------------------------------------
 // Scene Setup
@@ -189,41 +190,11 @@ bench14.position.set(-7, 0, 8.7);
 bench14.rotation.y = (Math.PI / 2) - (10 * (Math.PI / 180));
 bench14.scale.set(1.3, 1.3, 1.3);
 scene.add(bench14);
+
 // --------------------------------------------------
 // Load Vending Machine
 // --------------------------------------------------
-const loader = new GLTFLoader();
-
-loader.load(
-  'models/vending-machine/scene.gltf',
-  function (gltf) {
-    const vendingMachine = gltf.scene;
-
-    const scaleFactor = 2.5; 
-    vendingMachine.scale.set(scaleFactor, scaleFactor, scaleFactor);
-    vendingMachine.updateMatrixWorld(); 
-    
-    const box = new THREE.Box3().setFromObject(vendingMachine);
-    const size = box.getSize(new THREE.Vector3());
-
-    const yOffset = -box.min.y;
-    vendingMachine.position.set(8, yOffset, -8);
-    vendingMachine.rotation.y = Math.PI; 
-
-    vendingMachine.traverse((child) => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-      }
-    });
-
-    scene.add(vendingMachine);
-    console.log('Vending machine loaded. Height is:', size.y);
-  },
-  function (error) {
-    console.error('Error loading vending machine:', error);
-  }
-);
+loadVendingMachine(scene);
 
 // --------------------------------------------------
 // Resize

@@ -6,6 +6,7 @@ import { createRoom } from "./room.js";
 import { createPedestalTable } from './furniture.js';
 import { createBench } from './furniture.js';
 import { createWallMagazine } from './furniture.js';
+import { createTV } from './furniture.js';
 
 import { loadVendingMachine } from './loader.js';
 
@@ -216,6 +217,16 @@ Magazine.scale.set(1.8, 1.8, 1.8);
 Magazine.position.set(-1.6, 4.5, 12.3);
 Magazine.rotation.y = -10 * (Math.PI / 180);
 scene.add(Magazine);
+
+// --------------------------------------------------
+// TV
+// --------------------------------------------------
+
+const TV = createTV();
+TV.position.set(-1.5, 4.5, 11.75);
+TV.rotation.y = Math.PI - (10 * Math.PI / 180);
+TV.scale.set(1.5, 1.5, 1.5); 
+scene.add(TV);
 
 // --------------------------------------------------
 // Load Vending Machine

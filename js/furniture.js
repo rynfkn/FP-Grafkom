@@ -100,7 +100,6 @@ export function createPedestalTable({
     return tableGroup;
 }
 
-
 export function createBench() {
     const benchGroup = new THREE.Group();
 
@@ -323,4 +322,60 @@ export function createWallMagazine({
     }
 
     return madingGroup;
+}
+
+export function createTV() {
+    const tvGroup = new THREE.Group();
+
+    const casingMat = new THREE.MeshStandardMaterial({
+        color: 0x111111,
+        roughness: 0.3,
+        metalness: 0.6
+    });
+
+    const video = document.createElement('video');
+    video.src = 'videos/nabil.mp4';
+    video.loop = true;
+    video.play().catch(() => {
+        window.addEventListener('click', () => video.play(), { once: true });
+    });
+
+    const videoTexture = new THREE.VideoTexture(video);
+    videoTexture.colorSpace = THREE.SRGBColorSpace;
+    videoTexture.minFilter = THREE.LinearFilter;
+    videoTexture.magFilter = THREE.LinearFilter;
+
+    const screenMat = new THREE.MeshBasicMaterial({
+        map: videoTexture
+    });
+
+    function createBox(width, height, depth, material, x, y, z) {
+        const geometry = new THREE.BoxGeometry(width, height, depth);
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(x, y, z);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        return mesh;
+    }
+
+    const tvWidth = 4.0;
+    const tvHeight = 2.25;
+    const tvDepth = 0.1;
+    const bezelSize = 0.1;
+    const screenRecess = 0.01;
+
+    const body = createBox(tvWidth, tvHeight, tvDepth, casingMat, 0, 0, 0);
+    tvGroup.add(body);
+
+    const screenW = tvWidth - (bezelSize * 2);
+    const screenH = tvHeight - (bezelSize * 2);
+    const screenZ = (tvDepth / 2) + screenRecess; 
+
+    const screen = createBox(screenW, screenH, 0.01, screenMat, 0, 0, screenZ);
+    tvGroup.add(screen);
+
+    const mount = createBox(tvWidth * 0.5, tvHeight * 0.5, 0.05, casingMat, 0, 0, -tvDepth);
+    tvGroup.add(mount);
+
+    return tvGroup;
 }

@@ -217,7 +217,8 @@ export function createWallMagazine({
     boardColor = 0x004D40,   // Warna Kain (Hijau Botol Gelap)
     metalColor = 0xD7D7D7,   // Warna List Aluminium (Perak)
     width = 5.0,             // Lebar total
-    height = 2.0             // Tinggi total
+    height = 2.0,             // Tinggi total
+    posters = []
 } = {}) {
     const madingGroup = new THREE.Group();
 
@@ -321,6 +322,32 @@ export function createWallMagazine({
         madingGroup.add(grooveRight);
     }
 
+    if(posters && posters.length > 0) {
+        const loader = new THREE.TextureLoader();
+        const posterZ = (boardDepth / 2) + 0.015;
+
+        posters.forEach((poster) => {
+            const texture = loader.load(poster.url);
+            texture.colorSpace = THREE.SRGBColorSpace;
+
+            const pWidth = poster.w || 0.5;
+            const pHeight = poster.h || 0.7;
+            const geometry = new THREE.PlaneGeometry(pWidth, pHeight);
+
+            const material = new THREE.MeshBasicMaterial({ 
+                map: texture,
+                transparent: true,
+                side: THREE.FrontSide
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+
+            mesh.position.set(poster.x || 0, poster.y || 0, posterZ);
+
+            madingGroup.add(mesh);
+        });
+    }
+
     return madingGroup;
 }
 
@@ -334,7 +361,7 @@ export function createTV() {
     });
 
     const video = document.createElement('video');
-    video.src = 'videos/nabil.mp4';
+    video.src = 'assets/nabil.mp4';
     video.loop = true;
     video.play().catch(() => {
         window.addEventListener('click', () => video.play(), { once: true });

@@ -66,8 +66,33 @@ export function createWall(width, height, thickness = 0.4, windowConfig = []) {
   const wallGroup = new THREE.Group();
   const material = new THREE.MeshStandardMaterial({ color: 0xfdf5e6, roughness: 0.6 });
 
-  // Jika tidak ada jendela, dinding solid sederhana
+  // --- A. MEMBUAT PLINT (SKIRTING BOARD) ---
+  // Ini adalah "bagian lantai yang menjadi bagian dinding"
+  const skirtingHeight = 0.25; // Tinggi plint (misal 25cm)
+  const skirtingThickness = thickness + 0.05; // Sedikit lebih tebal dari dinding agar menonjol
+  
+  // Menggunakan warna gelap (#4a3c31) yang sama dengan semen lantai agar menyatu
+  const skirtingMat = new THREE.MeshStandardMaterial({ color: 0x4a3c31, roughness: 0.8 });
+  
+  const skirting = new THREE.Mesh(
+    new THREE.BoxGeometry(width, skirtingHeight, skirtingThickness),
+    skirtingMat
+  );
+  // Posisi y = setengah tinggi plint, karena pivot wallGroup ada di y=0 (lantai)
+  skirting.position.y = skirtingHeight / 2;
+  skirting.castShadow = true;
+  skirting.receiveShadow = true;
+  
+  // Tambahkan plint ke group dinding
+  wallGroup.add(skirting);
+
+
+  // --- B. LOGIKA DINDING UTAMA ---
+  
+  // Jika tidak ada jendela, dinding solid sederhana (di atas plint)
   if (!windowConfig || windowConfig.length === 0) {
+    // Kita buat dinding penuh, plint akan menumpuk di bawahnya (tidak masalah di 3D sederhana)
+    // Atau bisa juga membuat dinding mulai dari atas plint, tapi menumpuk lebih aman untuk mencegah celah.
     const solidWall = new THREE.Mesh(new THREE.BoxGeometry(width, height, thickness), material);
     solidWall.position.y = height / 2;
     solidWall.castShadow = true;
@@ -76,24 +101,19 @@ export function createWall(width, height, thickness = 0.4, windowConfig = []) {
     return wallGroup;
   }
 
-  // --- LOGIKA DINAMIS UNTUK MENGHINDARI GAP ---
-  // Kita hitung tinggi dinding bawah & atas berdasarkan konfigurasi jendela pertama.
-  // Asumsinya semua jendela dalam satu dinding memiliki ketinggian vertikal yang sama (sejajar).
+  // --- C. LOGIKA DINAMIS JENDELA ---
   
-  let bottomHeight = 1.5; // Default jika error
-  let topHeight = 1.0;    // Default jika error
+  let bottomHeight = 1.5; 
+  let topHeight = 1.0;    
 
   if (windowConfig.length > 0) {
     const win = windowConfig[0];
     const winBottomY = win.y - (win.height / 2);
     const winTopY = win.y + (win.height / 2);
 
-    // Dinding bawah setinggi bagian bawah jendela
     bottomHeight = winBottomY;
-    // Dinding atas adalah sisa dari tinggi total dikurangi bagian atas jendela
     topHeight = height - winTopY;
 
-    // Safety check agar tidak negatif
     if (bottomHeight < 0) bottomHeight = 0;
     if (topHeight < 0) topHeight = 0;
   }

@@ -3,12 +3,12 @@ import * as THREE from "three";
 import { FirstPersonControls } from "three/addons/controls/FirstPersonControls.js";
 
 import { createRoom } from "./room.js";
-import { createPedestalTable } from './furniture.js';
-import { createBench } from './furniture.js';
-import { createWallMagazine } from './furniture.js';
-import { createTV } from './furniture.js';
+import { createPedestalTable } from "./furniture.js";
+import { createBench } from "./furniture.js";
+import { createWallMagazine } from "./furniture.js";
+import { createTV } from "./furniture.js";
 
-import { loadVendingMachine } from './loader.js';
+import { loadVendingMachine } from "./loader.js";
 
 // --------------------------------------------------
 // Scene Setup
@@ -19,7 +19,10 @@ scene.background = new THREE.Color(0xdddddd);
 const clock = new THREE.Clock();
 
 const camera = new THREE.PerspectiveCamera(
-  60, window.innerWidth / window.innerHeight, 0.1, 100
+  60,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  100
 );
 camera.position.set(0, 5, 10);
 
@@ -42,13 +45,13 @@ dir.castShadow = true;
 dir.shadow.mapSize.width = 2048;
 dir.shadow.mapSize.height = 2048;
 
-const d = 25; 
+const d = 25;
 dir.shadow.camera.left = -d;
 dir.shadow.camera.right = d;
 dir.shadow.camera.top = d;
 dir.shadow.camera.bottom = -d;
-dir.shadow.bias = -0.0001; 
-dir.shadow.normalBias = 0.05; 
+dir.shadow.bias = -0.0001;
+dir.shadow.normalBias = 0.05;
 
 scene.add(dir);
 
@@ -64,20 +67,16 @@ controls.movementSpeed = 5;
 // --------------------------------------------------
 createRoom(scene);
 
-const table1 = createPedestalTable(
-  {
-    topColor: 0xF3F2ED,
-  }
-);
+const table1 = createPedestalTable({
+  topColor: 0xf3f2ed,
+});
 table1.scale.set(1.3, 1.3, 1.3);
 table1.position.set(0, 0, -8);
 scene.add(table1);
 
-const table2 = createPedestalTable(
-  {
-    topColor: 0xF3F2ED,
-  }
-);
+const table2 = createPedestalTable({
+  topColor: 0xf3f2ed,
+});
 table2.scale.set(1.3, 1.3, 1.3);
 table2.position.set(-3.5, 0, -8);
 scene.add(table2);
@@ -87,11 +86,9 @@ table3.scale.set(1.3, 1.3, 1.3);
 table3.position.set(3.5, 0, -8);
 scene.add(table3);
 
-const table4 = createPedestalTable(
-  {
-    topColor: 0xF3F2ED,
-  }
-);
+const table4 = createPedestalTable({
+  topColor: 0xf3f2ed,
+});
 table4.scale.set(1.3, 1.3, 1.3);
 table4.position.set(8, 0, 1.5);
 scene.add(table4);
@@ -194,38 +191,69 @@ scene.add(bench9);
 
 const bench10 = createBench();
 bench10.position.set(-7.5, 0, 13.5);
-bench10.rotation.y = (Math.PI / 2) - (10 * (Math.PI / 180));
+bench10.rotation.y = Math.PI / 2 - 10 * (Math.PI / 180);
 bench10.scale.set(1.3, 1.3, 1.3);
 scene.add(bench10);
 
 const bench11 = createBench();
 bench11.position.set(3.5, 0, 15.5);
-bench11.rotation.y = (Math.PI / 2) - (10 * (Math.PI / 180));
+bench11.rotation.y = Math.PI / 2 - 10 * (Math.PI / 180);
 bench11.scale.set(1.3, 1.3, 1.3);
 scene.add(bench11);
 
 const bench12 = createBench();
 bench12.position.set(1.5, 0, 8.5);
-bench12.rotation.y = (-10 * (Math.PI / 180));
+bench12.rotation.y = -10 * (Math.PI / 180);
 bench12.scale.set(1.3, 1.3, 1.3);
 scene.add(bench12);
 
 const bench13 = createBench();
 bench13.position.set(-3, 0, 7.7);
-bench13.rotation.y = (-10 * (Math.PI / 180));
+bench13.rotation.y = -10 * (Math.PI / 180);
 bench13.scale.set(1.3, 1.3, 1.3);
 scene.add(bench13);
 
 const bench14 = createBench();
 bench14.position.set(-7, 0, 8.7);
-bench14.rotation.y = (Math.PI / 2) - (10 * (Math.PI / 180));
+bench14.rotation.y = Math.PI / 2 - 10 * (Math.PI / 180);
 bench14.scale.set(1.3, 1.3, 1.3);
 scene.add(bench14);
 
 // --------------------------------------------------
 // Wall Magazine
 // --------------------------------------------------
-const Magazine = createWallMagazine();
+const Magazine = createWallMagazine({
+  posters: [
+    {
+      url: "assets/Poster Satria Data.jpg",
+      x: -1.5, 
+      y: -0.1, 
+      w: 0.6, // Lebar poster
+      h: 0.8, // Tinggi poster
+    },
+    {
+      url: "assets/Poster Gemastik.png",
+      x: -0.5, 
+      y: -0.1, 
+      w: 0.6, // Lebar poster
+      h: 0.8, // Tinggi poster
+    },
+    {
+      url: "assets/Poster Gemastik.png",
+      x: 0.5, 
+      y: -0.1, 
+      w: 0.6, // Lebar poster
+      h: 0.8, // Tinggi poster
+    },
+    {
+      url: "assets/Poster Gemastik.png",
+      x: 1.5, 
+      y: -0.1, 
+      w: 0.6, // Lebar poster
+      h: 0.8, // Tinggi poster
+    },
+  ],
+});
 Magazine.scale.set(1.8, 1.8, 1.8);
 Magazine.position.set(-1.6, 4.5, 12.3);
 Magazine.rotation.y = -10 * (Math.PI / 180);
@@ -236,8 +264,8 @@ scene.add(Magazine);
 // --------------------------------------------------
 const TV = createTV();
 TV.position.set(-1.5, 4.5, 11.75);
-TV.rotation.y = Math.PI - (10 * Math.PI / 180);
-TV.scale.set(1.5, 1.5, 1.5); 
+TV.rotation.y = Math.PI - (10 * Math.PI) / 180;
+TV.scale.set(1.5, 1.5, 1.5);
 scene.add(TV);
 
 // --------------------------------------------------
@@ -249,7 +277,8 @@ loadVendingMachine(scene);
 // Resize
 // --------------------------------------------------
 window.addEventListener("resize", () => {
-  const w = window.innerWidth, h = window.innerHeight;
+  const w = window.innerWidth,
+    h = window.innerHeight;
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);

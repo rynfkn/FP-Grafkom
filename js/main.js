@@ -26,16 +26,30 @@ camera.position.set(0, 5, 10);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
 // --------------------------------------------------
 // Lights
 // --------------------------------------------------
-scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+hemiLight.position.set(0, 20, 0);
+scene.add(hemiLight);
 
-const dir = new THREE.DirectionalLight(0xffffff, 1);
-dir.position.set(5, 10, 4);
+const dir = new THREE.DirectionalLight(0xffffff, 1.5);
+dir.position.set(-5, 25, -15);
 dir.castShadow = true;
+dir.shadow.mapSize.width = 2048;
+dir.shadow.mapSize.height = 2048;
+
+const d = 25; 
+dir.shadow.camera.left = -d;
+dir.shadow.camera.right = d;
+dir.shadow.camera.top = d;
+dir.shadow.camera.bottom = -d;
+dir.shadow.bias = -0.0001; 
+dir.shadow.normalBias = 0.05; 
+
 scene.add(dir);
 
 // --------------------------------------------------
@@ -211,7 +225,6 @@ scene.add(bench14);
 // --------------------------------------------------
 // Wall Magazine
 // --------------------------------------------------
-
 const Magazine = createWallMagazine();
 Magazine.scale.set(1.8, 1.8, 1.8);
 Magazine.position.set(-1.6, 4.5, 12.3);
@@ -221,7 +234,6 @@ scene.add(Magazine);
 // --------------------------------------------------
 // TV
 // --------------------------------------------------
-
 const TV = createTV();
 TV.position.set(-1.5, 4.5, 11.75);
 TV.rotation.y = Math.PI - (10 * Math.PI / 180);

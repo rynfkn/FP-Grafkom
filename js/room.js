@@ -224,7 +224,7 @@ export function createRoom(scene) {
   const floorSize_X = 22;
   const floorSize_Z = 30;
   const floor = createFloor(floorSize_X, floorSize_Z);
-  floor.position.set(-0.5, 0, 4.5);
+  floor.position.set(-0.5, -0.25, 4.5);
   scene.add(floor);
 
   const wallHeight = 7;

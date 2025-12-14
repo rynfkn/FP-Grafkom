@@ -1,6 +1,6 @@
 // js/main.js
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { FirstPersonControls } from "three/addons/controls/FirstPersonControls.js";
 
 import { createRoom } from "./room.js";
 import { createPedestalTable } from './furniture.js';
@@ -14,6 +14,8 @@ import { loadVendingMachine } from './loader.js';
 // --------------------------------------------------
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xdddddd);
+
+const clock = new THREE.Clock();
 
 const camera = new THREE.PerspectiveCamera(
   60, window.innerWidth / window.innerHeight, 0.1, 100
@@ -38,8 +40,9 @@ scene.add(dir);
 // --------------------------------------------------
 // Controls
 // --------------------------------------------------
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
+const controls = new FirstPersonControls(camera, renderer.domElement);
+controls.lookSpeed = 0.1;
+controls.movementSpeed = 5;
 
 // --------------------------------------------------
 // Create Room + Furniture
@@ -227,6 +230,7 @@ window.addEventListener("resize", () => {
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
+  controls.handleResize();
 });
 
 // --------------------------------------------------
@@ -234,7 +238,7 @@ window.addEventListener("resize", () => {
 // --------------------------------------------------
 function animate() {
   requestAnimationFrame(animate);
-  controls.update();
+  controls.update(clock.getDelta());
   renderer.render(scene, camera);
 }
 animate();

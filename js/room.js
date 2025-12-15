@@ -383,6 +383,12 @@ export function createRoom(scene) {
   ceiling.position.set(-0.5, wallHeight - 0.625, -0.5);
   scene.add(ceiling);
 
+  window.addEventListener("keydown", (event) => {
+    if (event.key.toLowerCase() === "x") {
+      ceiling.visible = !ceiling.visible;
+    }
+  });
+
   const winConfigFront = [
     { x: -3.5, width: 4, height: 4, y: 4 }, 
     { x: 1, width: 4, height: 4, y: 4 }   

@@ -129,3 +129,38 @@ export function loadTrashCan(scene) {
     );
 }
 
+export function loadBathroomSink(scene) {
+    const loader = new GLTFLoader();
+
+    loader.load(
+        'models/bathroom_sink_01/scene.gltf',
+        function (gltf) {
+            const sink = gltf.scene;
+
+            const scaleFactor = 2.5; 
+            sink.scale.set(scaleFactor, scaleFactor, scaleFactor);
+            
+            sink.updateMatrixWorld(); 
+            
+            const box = new THREE.Box3().setFromObject(sink);
+            const yOffset = -box.min.y + 2;
+            
+            sink.position.set(-9.75, yOffset, -7); 
+            sink.rotation.y = 0;
+
+            sink.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+
+            scene.add(sink);
+            console.log('Bathroom sink loaded.');
+        },
+        undefined,
+        function (error) {
+            console.error('Error loading bathroom sink:', error);
+        }
+    );
+}

@@ -62,29 +62,31 @@ export function createFloor(width, depth) {
  * Membuat Dinding (Solid atau dengan Lubang Jendela)
  * Mengembalikan THREE.Group yang titik pivotnya ada di dasar dinding (y=0).
  */
-export function createWall(width, height, thickness = 0.4, windowConfig = []) {
+export function createWall(width, height, thickness = 0.4, windowConfig = [], use_skirting = true) {
   const wallGroup = new THREE.Group();
   const material = new THREE.MeshStandardMaterial({ color: 0xfdf5e6, roughness: 0.6 });
 
   // --- A. MEMBUAT PLINT (SKIRTING BOARD) ---
   // Ini adalah "bagian lantai yang menjadi bagian dinding"
-  const skirtingHeight = 0.25; // Tinggi plint (misal 25cm)
-  const skirtingThickness = thickness + 0.05; // Sedikit lebih tebal dari dinding agar menonjol
-  
-  // Menggunakan warna gelap (#4a3c31) yang sama dengan semen lantai agar menyatu
-  const skirtingMat = new THREE.MeshStandardMaterial({ color: 0x4a3c31, roughness: 0.8 });
-  
-  const skirting = new THREE.Mesh(
-    new THREE.BoxGeometry(width, skirtingHeight, skirtingThickness),
-    skirtingMat
-  );
-  // Posisi y = setengah tinggi plint, karena pivot wallGroup ada di y=0 (lantai)
-  skirting.position.y = skirtingHeight / 2;
-  skirting.castShadow = true;
-  skirting.receiveShadow = true;
-  
-  // Tambahkan plint ke group dinding
-  wallGroup.add(skirting);
+  if (use_skirting) {
+    const skirtingHeight = 0.25; // Tinggi plint (misal 25cm)
+    const skirtingThickness = thickness + 0.05; // Sedikit lebih tebal dari dinding agar menonjol
+    
+    // Menggunakan warna gelap (#4a3c31) yang sama dengan semen lantai agar menyatu
+    const skirtingMat = new THREE.MeshStandardMaterial({ color: 0x4a3c31, roughness: 0.8 });
+    
+    const skirting = new THREE.Mesh(
+      new THREE.BoxGeometry(width, skirtingHeight, skirtingThickness),
+      skirtingMat
+    );
+    // Posisi y = setengah tinggi plint, karena pivot wallGroup ada di y=0 (lantai)
+    skirting.position.y = skirtingHeight / 2;
+    skirting.castShadow = true;
+    skirting.receiveShadow = true;
+    
+    // Tambahkan plint ke group dinding
+    wallGroup.add(skirting);
+  }
 
 
   // --- B. LOGIKA DINDING UTAMA ---
@@ -230,7 +232,6 @@ export function createWindows(windowConfig, wallThickness = 0.4) {
     group.add(vMid);
 
     // --- 3. Kaca ---
-    // Pastikan kaca mengisi penuh area dalam frame
     const glass = new THREE.Mesh(new THREE.BoxGeometry(win.width - frameW, win.height - frameW, 0.05), glassMat);
     glass.position.set(win.x, win.y, 0);
     group.add(glass);
@@ -240,7 +241,7 @@ export function createWindows(windowConfig, wallThickness = 0.4) {
 }
 
 export function createRoom(scene) {
-  // --- A. LANTAI ---
+  // --- LANTAI ---
   const floorSize_X = 22;
   const floorSize_Z = 30;
   const floor = createFloor(floorSize_X, floorSize_Z);
@@ -255,22 +256,27 @@ export function createRoom(scene) {
     { x: 1, width: 4, height: 4, y: 4 }   
   ];
 
+  // --- DINDING DEPAN
   const frontGroup = new THREE.Group();
   
   const frontWall = createWall(17, wallHeight, wallThickness, winConfigFront);
   frontWall.position.set(1.75, 0, 0); 
   frontGroup.add(frontWall);
 
+  const frontWallTop = createWall(4.5, 2, wallThickness, [], false);
+  frontWallTop.position.set(-9, 6, 0); 
+  frontWallTop.scale.y = 0.5; 
+  frontGroup.add(frontWallTop);
+
   const frontWindows = createWindows(winConfigFront, wallThickness);
   frontWindows.position.set(1.75, 0, 0); 
   frontGroup.add(frontWindows);
 
-  // Posisikan Group di Z = -10
   frontGroup.position.set(0, 0, -10);
   scene.add(frontGroup);
 
 
-  // --- C. DINDING KANAN (Right Wall - X axis positif +10) ---
+  // --- DINDING KANAN 
   const winConfigRight = [
     { x: -5.5, width: 4, height: 4, y: 4 },
     { x: -1, width: 4, height: 4, y: 4 },
@@ -279,7 +285,6 @@ export function createRoom(scene) {
 
   const rightGroup = new THREE.Group();
   
-  // Gunakan lebar 20
   const rightWall = createWall(25, wallHeight, wallThickness, winConfigRight);
   rightWall.position.set(2.5, 0, 0);
   rightGroup.add(rightWall);
@@ -288,21 +293,32 @@ export function createRoom(scene) {
   rightWindows.position.set(2.5, 0, 0);
   rightGroup.add(rightWindows);
 
-  // Posisikan di X = 10, rotasi -90 derajat
   rightGroup.position.set(10, 0, 0);
   rightGroup.rotation.y = -Math.PI / 2;
   scene.add(rightGroup);
 
 
-  // --- D. DINDING KIRI (Solid Left Wall - X axis negatif -10) ---
-  const leftGroup = createWall(20, wallHeight, wallThickness);
-  leftGroup.position.set(-11, 0, 0);
+  // --- DINDING KIRI 
+  const leftGroup = createWall(21, wallHeight, wallThickness);
+  leftGroup.position.set(-11, 0, 0.25);
   leftGroup.rotation.y = Math.PI / 2;
   scene.add(leftGroup);
 
-  // --- E. DINDING BELAKANG (Solid Back Wall - Z axis positif +10) ---
+  // --- DINDING BELAKANG
   const backGroup = createWall(14, wallHeight, wallThickness);
   backGroup.position.set(-1.4, 0, 12);
   backGroup.rotation.y = -10 * (Math.PI / 180);
   scene.add(backGroup);
+
+  const rightbackWallTop = createWall(5, 1, wallThickness, [], false);
+  rightbackWallTop.position.set(7.5, 6.5, 13.57);
+  rightbackWallTop.rotation.y = -10 * (Math.PI / 180);
+  rightbackWallTop.scale.y = 0.5;
+  scene.add(rightbackWallTop);
+  
+  const leftbackWallTop = createWall(3, 1, wallThickness, [], false);
+  leftbackWallTop.position.set(-9.49, 6.5, 10.57);
+  leftbackWallTop.rotation.y = -10 * (Math.PI / 180);
+  leftbackWallTop.scale.y = 0.5;
+  scene.add(leftbackWallTop);
 }

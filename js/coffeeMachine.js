@@ -226,9 +226,21 @@ function createFramedBox(width, height, depth, bezelThickness) {
 
   // Cut holes in each axis
   const cuts = [
-    { w: width + 2, h: height - bezelThickness * 2, d: depth - bezelThickness * 2 },
-    { w: width - bezelThickness * 2, h: height + 2, d: depth - bezelThickness * 2 },
-    { w: width - bezelThickness * 2, h: height - bezelThickness * 2, d: depth + 2 },
+    {
+      w: width + 2,
+      h: height - bezelThickness * 2,
+      d: depth - bezelThickness * 2,
+    },
+    {
+      w: width - bezelThickness * 2,
+      h: height + 2,
+      d: depth - bezelThickness * 2,
+    },
+    {
+      w: width - bezelThickness * 2,
+      h: height - bezelThickness * 2,
+      d: depth + 2,
+    },
   ];
 
   let result = outerBrush;
@@ -251,7 +263,11 @@ function createFramedBox(width, height, depth, bezelThickness) {
     d: Math.max(0.1, depth - bezelThickness * 0.5),
   };
 
-  const panelGeometry = new THREE.BoxGeometry(panelSize.w, panelSize.h, panelSize.d);
+  const panelGeometry = new THREE.BoxGeometry(
+    panelSize.w,
+    panelSize.h,
+    panelSize.d
+  );
   const panels = new THREE.Mesh(panelGeometry, Materials.yellow());
 
   const group = new THREE.Group();
@@ -301,10 +317,17 @@ function createTopUnit(width, depth) {
   const chromeMat = Materials.chrome();
   const glassMat = Materials.glass();
 
-  const leftUiMat = new THREE.MeshBasicMaterial({ map: createLeftPanelTexture() });
+  const leftUiMat = new THREE.MeshBasicMaterial({
+    map: createLeftPanelTexture(),
+  });
   const screenUiMat = new THREE.MeshBasicMaterial({ map: textures.screen });
-  const rightUiMat = new THREE.MeshBasicMaterial({ map: createRightPanelTexture() });
-  const sideMat = new THREE.MeshStandardMaterial({ map: textures.sideImage, roughness: 0.3 });
+  const rightUiMat = new THREE.MeshBasicMaterial({
+    map: createRightPanelTexture(),
+  });
+  const sideMat = new THREE.MeshStandardMaterial({
+    map: textures.sideImage,
+    roughness: 0.3,
+  });
 
   // Chin text
   const chinTextTexture = createTextTexture(
@@ -314,13 +337,21 @@ function createTopUnit(width, depth) {
     "#fdb627",
     "#000000"
   );
-  const chinTextMat = new THREE.MeshStandardMaterial({ map: chinTextTexture, roughness: 0.4 });
+  const chinTextMat = new THREE.MeshStandardMaterial({
+    map: chinTextTexture,
+    roughness: 0.4,
+  });
 
   // ---- SPACER FEET ----
   const spacerHeight = 0.08;
   const spacerRadius = 0.12;
   const spacerMat = new THREE.MeshStandardMaterial({ color: COLORS.darkBlack });
-  const spacerGeo = new THREE.CylinderGeometry(spacerRadius, spacerRadius, spacerHeight, 16);
+  const spacerGeo = new THREE.CylinderGeometry(
+    spacerRadius,
+    spacerRadius,
+    spacerHeight,
+    16
+  );
 
   const inset = width * 0.35;
   const feetY = -totalHeight / 2 - spacerHeight / 2;
@@ -346,26 +377,51 @@ function createTopUnit(width, depth) {
   // Back section (black)
   const backGeo = new THREE.BoxGeometry(width, footerHeight, backSliceDepth);
   const backMesh = new THREE.Mesh(backGeo, blackMat);
-  backMesh.position.set(0, -totalHeight / 2 + footerHeight / 2, -frontSliceDepth / 2);
+  backMesh.position.set(
+    0,
+    -totalHeight / 2 + footerHeight / 2,
+    -frontSliceDepth / 2
+  );
   machineGroup.add(backMesh);
 
   // Front section (yellow with text)
   const frontGeo = new THREE.BoxGeometry(width, footerHeight, frontSliceDepth);
-  const frontMaterials = [yellowMat, yellowMat, yellowMat, yellowMat, chinTextMat, yellowMat];
+  const frontMaterials = [
+    yellowMat,
+    yellowMat,
+    yellowMat,
+    yellowMat,
+    chinTextMat,
+    yellowMat,
+  ];
   const frontMesh = new THREE.Mesh(frontGeo, frontMaterials);
-  frontMesh.position.set(0, -totalHeight / 2 + footerHeight / 2, depth / 2 - frontSliceDepth / 2);
+  frontMesh.position.set(
+    0,
+    -totalHeight / 2 + footerHeight / 2,
+    depth / 2 - frontSliceDepth / 2
+  );
   machineGroup.add(frontMesh);
 
   // Text overlay plane
-  const textPlaneGeo = new THREE.PlaneGeometry(width * 0.95, footerHeight * 0.9);
+  const textPlaneGeo = new THREE.PlaneGeometry(
+    width * 0.95,
+    footerHeight * 0.9
+  );
   const textPlane = new THREE.Mesh(textPlaneGeo, chinTextMat);
-  textPlane.position.set(0, -totalHeight / 2 + footerHeight / 2, depth / 2 + 0.01);
+  textPlane.position.set(
+    0,
+    -totalHeight / 2 + footerHeight / 2,
+    depth / 2 + 0.01
+  );
   machineGroup.add(textPlane);
 
   // ---- MAIN BODY ----
   const bodyCenterY = -totalHeight / 2 + footerHeight + bodyHeight / 2;
 
-  const bodyBrush = new Brush(new THREE.BoxGeometry(width, bodyHeight, depth), blackMat);
+  const bodyBrush = new Brush(
+    new THREE.BoxGeometry(width, bodyHeight, depth),
+    blackMat
+  );
   bodyBrush.position.y = bodyCenterY;
   bodyBrush.updateMatrixWorld();
 
@@ -381,7 +437,10 @@ function createTopUnit(width, depth) {
   const nicheD = depth * 0.5;
   const nicheY = bodyCenterY - bodyHeight / 2 + nicheH / 2 + 0.2;
 
-  const cutBrush = new Brush(new THREE.BoxGeometry(nicheW, nicheH, nicheD), blackMat);
+  const cutBrush = new Brush(
+    new THREE.BoxGeometry(nicheW, nicheH, nicheD),
+    blackMat
+  );
   cutBrush.position.set(0, nicheY, depth / 2);
   cutBrush.updateMatrixWorld();
 
@@ -433,7 +492,14 @@ function createTopUnit(width, depth) {
   const tabletDepth = 0.15;
 
   const tabletGeo = new THREE.BoxGeometry(screenW, screenH, tabletDepth);
-  const tabletMaterials = [blackMat, blackMat, blackMat, blackMat, screenUiMat, blackMat];
+  const tabletMaterials = [
+    blackMat,
+    blackMat,
+    blackMat,
+    blackMat,
+    screenUiMat,
+    blackMat,
+  ];
   const screenMesh = new THREE.Mesh(tabletGeo, tabletMaterials);
   screenMesh.position.set(0, screenY, frontFaceZ + tabletDepth / 2);
   machineGroup.add(screenMesh);
@@ -448,7 +514,11 @@ function createTopUnit(width, depth) {
     nozzle.position.x = xPos;
     nozzleGroup.add(nozzle);
   });
-  nozzleGroup.position.set(0, nicheY + nicheH / 2 - 0.2, depth / 2 - nicheD / 2 + 0.5);
+  nozzleGroup.position.set(
+    0,
+    nicheY + nicheH / 2 - 0.2,
+    depth / 2 - nicheD / 2 + 0.5
+  );
   machineGroup.add(nozzleGroup);
 
   // ---- DRIP TRAY ----
@@ -489,7 +559,14 @@ function createTopUnit(width, depth) {
   // Sign card
   const cardImgMat = new THREE.MeshBasicMaterial({ map: textures.signImage });
   const cardEdgeMat = new THREE.MeshBasicMaterial({ color: COLORS.white });
-  const cardMaterials = [cardEdgeMat, cardEdgeMat, cardEdgeMat, cardEdgeMat, cardImgMat, cardImgMat];
+  const cardMaterials = [
+    cardEdgeMat,
+    cardEdgeMat,
+    cardEdgeMat,
+    cardEdgeMat,
+    cardImgMat,
+    cardImgMat,
+  ];
 
   const cardGeo = new THREE.BoxGeometry(signW - 0.1, signH - 0.1, signD * 0.5);
   const card = new THREE.Mesh(cardGeo, cardMaterials);
@@ -502,7 +579,11 @@ function createTopUnit(width, depth) {
   base.position.y = 0.025;
   holderGroup.add(base);
 
-  holderGroup.position.set(0, bodyCenterY + bodyHeight / 2 + 0.01, depth / 2 - 1.2);
+  holderGroup.position.set(
+    0,
+    bodyCenterY + bodyHeight / 2 + 0.01,
+    depth / 2 - 1.2
+  );
   machineGroup.add(holderGroup);
 
   // Store metadata
@@ -519,13 +600,19 @@ function createTopUnit(width, depth) {
 // ============================================================
 export function createCoffeeMachine() {
   const machine = new THREE.Group();
-  const { boxSize, bezelThickness, wheelRadius, wheelHeightOffset } = MACHINE_CONFIG;
+  const { boxSize, bezelThickness, wheelRadius, wheelHeightOffset } =
+    MACHINE_CONFIG;
 
   // ---- BASE UNIT ----
   const mainBase = createFramedBox(boxSize, boxSize, boxSize, bezelThickness);
 
   const frontDepth = 0.5;
-  const frontExtension = createFramedBox(boxSize, boxSize, frontDepth, bezelThickness);
+  const frontExtension = createFramedBox(
+    boxSize,
+    boxSize,
+    frontDepth,
+    bezelThickness
+  );
   frontExtension.position.z = boxSize / 2 + frontDepth / 2;
 
   const baseUnit = new THREE.Group();

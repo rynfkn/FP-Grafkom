@@ -8,7 +8,12 @@ import { createBench } from "./furniture.js";
 import { createWallMagazine } from "./furniture.js";
 import { createTV } from "./furniture.js";
 import { createCoffeeMachine } from "./coffeeMachine.js";
-import { loadHelmet, loadMotorcycleHelmet, loadTrashCan, loadBathroomSink } from "./loader.js";
+import {
+  loadHelmet,
+  loadMotorcycleHelmet,
+  loadTrashCan,
+  loadBathroomSink,
+} from "./loader.js";
 
 import { loadVendingMachine } from "./loader.js";
 
@@ -234,29 +239,29 @@ const Magazine = createWallMagazine({
   posters: [
     {
       url: "assets/Poster Satria Data.jpg",
-      x: -1.5, 
-      y: -0.1, 
+      x: -1.5,
+      y: -0.1,
       w: 0.6, // Lebar poster
       h: 0.8, // Tinggi poster
     },
     {
       url: "assets/Poster Gemastik.png",
-      x: -0.5, 
-      y: -0.1, 
+      x: -0.5,
+      y: -0.1,
       w: 0.6, // Lebar poster
       h: 0.8, // Tinggi poster
     },
     {
       url: "assets/Poster Gemastik.png",
-      x: 0.5, 
-      y: -0.1, 
+      x: 0.5,
+      y: -0.1,
       w: 0.6, // Lebar poster
       h: 0.8, // Tinggi poster
     },
     {
       url: "assets/Poster Gemastik.png",
-      x: 1.5, 
-      y: -0.1, 
+      x: 1.5,
+      y: -0.1,
       w: 0.6, // Lebar poster
       h: 0.8, // Tinggi poster
     },
@@ -280,7 +285,15 @@ scene.add(TV);
 // Load Vending Machine
 // --------------------------------------------------
 loadVendingMachine(scene);
+
+// --------------------------------------------------
+// Load Trash Can
+// --------------------------------------------------
 loadTrashCan(scene);
+
+// --------------------------------------------------
+// Load Bathroom Sink
+// --------------------------------------------------
 loadBathroomSink(scene);
 
 // --------------------------------------------------

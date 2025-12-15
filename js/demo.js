@@ -30,7 +30,7 @@ document.body.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; // Gerakan halus
 controls.dampingFactor = 0.05;
-controls.target.set(0, 1, 0);  // Titik fokus kamera
+controls.target.set(0, 1, 0); // Titik fokus kamera
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
@@ -72,29 +72,29 @@ scene.add(dirLight);
 //   posters: [
 //     {
 //       url: "assets/Poster Satria Data.jpg",
-//       x: -1.5, 
-//       y: -0.1, 
+//       x: -1.5,
+//       y: -0.1,
 //       w: 0.6,
 //       h: 0.8,
 //     },
 //     {
 //       url: "assets/Poster Gemastik.png",
-//       x: -0.5, 
-//       y: -0.1, 
+//       x: -0.5,
+//       y: -0.1,
 //       w: 0.6,
 //       h: 0.8,
 //     },
 //     {
 //       url: "assets/Poster Gemastik.png",
-//       x: 0.5, 
-//       y: -0.1, 
+//       x: 0.5,
+//       y: -0.1,
 //       w: 0.6,
 //       h: 0.8,
 //     },
 //     {
 //       url: "assets/Poster Gemastik.png",
-//       x: 1.5, 
-//       y: -0.1, 
+//       x: 1.5,
+//       y: -0.1,
 //       w: 0.6,
 //       h: 0.8,
 //     },
@@ -132,9 +132,9 @@ window.addEventListener("resize", () => {
 
 function animate() {
   requestAnimationFrame(animate);
-  
-  controls.update(); 
-  
+
+  controls.update();
+
   renderer.render(scene, camera);
 }
 

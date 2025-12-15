@@ -58,127 +58,128 @@ export function createFloor(width, depth) {
 
 // --- 2. CEILING ---
 
-function createPendantLight() {
+function createLamp() {
   const group = new THREE.Group();
 
-  const blackMat = new THREE.MeshStandardMaterial({
-    color: 0x111111,
-    roughness: 0.6,
-    metalness: 0.1
-  });
-  
-  const chromeMat = new THREE.MeshStandardMaterial({
-    color: 0xffffff,
-    roughness: 0.2,
-    metalness: 0.9
+  const blackMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.6, metalness: 0.1 });
+  const chromeMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2, metalness: 0.9 });
+  const bulbMat = new THREE.MeshStandardMaterial({ 
+    color: 0x000000, 
+    emissive: 0xffffee, 
+    emissiveIntensity: 3, 
+    roughness: 0.1 
   });
 
-  const bulbMat = new THREE.MeshBasicMaterial({
-    color: 0xffffee
-  });
-
-  const mountGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.02, 32);
-  const mount = new THREE.Mesh(mountGeo, blackMat);
-  mount.position.y = -0.01; 
-  mount.castShadow = true;
+  const mount = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.02, 32), blackMat);
+  mount.position.y = -0.01;
   group.add(mount);
 
   const stemLen = 0.15;
-  const stemGeo = new THREE.CylinderGeometry(0.015, 0.015, stemLen, 16);
-  const stem = new THREE.Mesh(stemGeo, blackMat);
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, stemLen, 16), blackMat);
   stem.position.y = -0.02 - (stemLen / 2);
-  stem.castShadow = true;
   group.add(stem);
 
   const bodyHeight = 0.35;
   const bodyRadius = 0.14;
-  const bodyGeo = new THREE.CylinderGeometry(bodyRadius, bodyRadius, bodyHeight, 32);
-  const body = new THREE.Mesh(bodyGeo, blackMat);
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(bodyRadius, bodyRadius, bodyHeight, 32), blackMat);
   const bodyY = stem.position.y - (stemLen / 2) - (bodyHeight / 2);
   body.position.y = bodyY;
-  body.castShadow = true;
   group.add(body);
 
-  const rimHeight = 0.02;
-  const rimGeo = new THREE.CylinderGeometry(bodyRadius - 0.02, bodyRadius - 0.02, rimHeight, 32);
-  const rim = new THREE.Mesh(rimGeo, chromeMat);
-  rim.position.y = bodyY - (bodyHeight / 2) + 0.001
+  const rim = new THREE.Mesh(new THREE.CylinderGeometry(bodyRadius - 0.02, bodyRadius - 0.02, 0.02, 32), chromeMat);
+  rim.position.y = bodyY - (bodyHeight / 2) + 0.001;
   group.add(rim);
 
-  const bulbGeo = new THREE.CircleGeometry(bodyRadius - 0.04, 32);
-  const bulb = new THREE.Mesh(bulbGeo, bulbMat);
+  const bulb = new THREE.Mesh(new THREE.CircleGeometry(bodyRadius - 0.04, 32), bulbMat);
   bulb.rotation.x = -Math.PI / 2;
   bulb.position.y = bodyY - (bodyHeight / 2) + 0.01;
   group.add(bulb);
 
-  const spotLight = new THREE.SpotLight(0xfff4e5, 20);
+  const spotLight = new THREE.SpotLight(0xfff4e5, 15);
   spotLight.position.set(0, bodyY, 0);
   spotLight.target.position.set(0, -10, 0);
-  
-  spotLight.angle = Math.PI / 5;
-  spotLight.penumbra = 0.4;
+  spotLight.angle = Math.PI / 4;
+  spotLight.penumbra = 0.5;
   spotLight.decay = 1;
-  spotLight.distance = 15;
-  
+  spotLight.distance = 25;
   spotLight.castShadow = true;
-  spotLight.shadow.mapSize.width = 512;
-  spotLight.shadow.mapSize.height = 512;
+  spotLight.shadow.mapSize.set(1024, 1024);
   spotLight.shadow.bias = -0.0001;
-
   group.add(spotLight);
   group.add(spotLight.target);
 
   return group;
 }
 
-function createCeiling(width, depth) {
+function createCeiling() {
   const ceilingGroup = new THREE.Group();
 
+  const whiteCeilingMat = new THREE.MeshStandardMaterial({ color: 0xfdf5e6, roughness: 0.9, side: THREE.DoubleSide });
+  const beamMat = new THREE.MeshStandardMaterial({ color: 0xffcc99, roughness: 0.8 });
+
+  const minX = -10.25; 
+  const maxX = 10.25;
+  const frontZ = -9.25; 
+
+  const backRightZ = 14.225;
+  const backLeftZ = 10.6;
+
+  const shape = new THREE.Shape();
+  shape.moveTo(minX, frontZ);       
+  shape.lineTo(maxX, frontZ);       
+  shape.lineTo(maxX, backRightZ);   
+  shape.lineTo(minX, backLeftZ);    
+  shape.lineTo(minX, frontZ);       
+
+  const extrudeSettings = { depth: 0.05, bevelEnabled: false };
+  const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+  const ceilingMesh = new THREE.Mesh(geometry, whiteCeilingMat);
+  ceilingMesh.rotation.x = Math.PI / 2; 
+  ceilingMesh.position.y = 0.625; 
+  ceilingMesh.receiveShadow = true;
+  ceilingGroup.add(ceilingMesh);
+
   const beamHeight = 0.6;
-  const beamWidth = 0.4;
-  const numBaysX = 2;
-  const numBaysZ = 2;
+  const beamWidth = 0.5;
 
-  const whiteCeilingMat = new THREE.MeshStandardMaterial({ color: 0xfdf5e6, roughness: 0.9 });
-  const orangeBeamMat = new THREE.MeshStandardMaterial({ color: 0xffcc99, roughness: 0.8 }); // Peach/Orange color
+  const xPositions = [-10, -0.5, 9]; 
+  
+  xPositions.forEach(posX => {
+    const t = (posX - minX) / (maxX - minX); 
+    const limitZ = backLeftZ + t * (backRightZ - backLeftZ);
+    const length = limitZ - frontZ;
+    const centerZ = frontZ + (length / 2);
 
-  const planeGeo = new THREE.BoxGeometry(width, 0.05, depth);
-  const plane = new THREE.Mesh(planeGeo, whiteCeilingMat);
-  plane.position.y = beamHeight + 0.025; 
-  plane.receiveShadow = true;
-  ceilingGroup.add(plane);
-
-  const beamY = beamHeight / 2;
-  const spacingX = width / numBaysX;
-  for (let i = 0; i <= numBaysX; i++) {
-    const beam = new THREE.Mesh(new THREE.BoxGeometry(beamWidth, beamHeight, depth), orangeBeamMat);
-    beam.position.set((-width / 2) + (i * spacingX), beamY, 0);
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(beamWidth, beamHeight, length), beamMat);
+    beam.position.set(posX, beamHeight/2, centerZ);
     beam.castShadow = true;
     beam.receiveShadow = true;
     ceilingGroup.add(beam);
-  }
+  });
 
-  const spacingZ = depth / numBaysZ;
-  for (let j = 0; j <= numBaysZ; j++) {
-    const crossBeam = new THREE.Mesh(
-        new THREE.BoxGeometry(width, beamHeight - 0.02, beamWidth), 
-        orangeBeamMat
-    );
-    crossBeam.position.set(0, beamY - 0.01, (-depth / 2) + (j * spacingZ));
-    crossBeam.castShadow = true;
-    crossBeam.receiveShadow = true;
-    ceilingGroup.add(crossBeam);
-  }
+  const zPositions = [-9, 0, 8]; 
 
-  for (let i = 0; i < numBaysX; i++) {
-    for (let j = 0; j < numBaysZ; j++) {
-      const light = createPendantLight();
-      const bayCenterX = (-width / 2) + (spacingX * (i + 0.5));
-      const bayCenterZ = (-depth / 2) + (spacingZ * (j + 0.5));
-      light.position.set(bayCenterX, beamHeight - 0.2, bayCenterZ);
+  zPositions.forEach(posZ => {
+    const length = maxX - minX;
+    const centerX = (maxX + minX) / 2;
+
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(length, beamHeight - 0.02, beamWidth), beamMat);
+    beam.position.set(centerX, beamHeight/2 - 0.01, posZ);
+    beam.castShadow = true;
+    beam.receiveShadow = true;
+    ceilingGroup.add(beam);
+  });
+
+  const lightX = [-5.25, 4.25];
+  const lightZ = [-4.5, 4.0];
+
+  lightX.forEach(lx => {
+    lightZ.forEach(lz => {
+      const light = createLamp();
+      light.position.set(lx, beamHeight, lz);
       ceilingGroup.add(light);
-    }
-  }
+    });
+  });
 
   return ceilingGroup;
 }
@@ -375,11 +376,11 @@ export function createRoom(scene) {
   floor.position.set(-0.5, -0.25, 4.5);
   scene.add(floor);
 
-  const wallHeight = 7;
+  const wallHeight = 8;
   const wallThickness = 0.5;
 
-  const ceiling = createCeiling(floorSize_X - 1, floorSize_Z - 11);
-  ceiling.position.set(-0.5, wallHeight, -0.5);
+  const ceiling = createCeiling();
+  ceiling.position.set(-0.5, wallHeight - 0.625, -0.5);
   scene.add(ceiling);
 
   const winConfigFront = [
@@ -395,7 +396,7 @@ export function createRoom(scene) {
   frontGroup.add(frontWall);
 
   const frontWallTop = createWall(4.5, 2, wallThickness, [], false);
-  frontWallTop.position.set(-9, 6, 0); 
+  frontWallTop.position.set(-9, 7, 0); 
   frontWallTop.scale.y = 0.5; 
   frontGroup.add(frontWallTop);
 
@@ -442,13 +443,13 @@ export function createRoom(scene) {
   scene.add(backGroup);
 
   const rightbackWallTop = createWall(5, 1, wallThickness, [], false);
-  rightbackWallTop.position.set(7.5, 6.5, 13.57);
+  rightbackWallTop.position.set(7.5, 7.5, 13.57);
   rightbackWallTop.rotation.y = -10 * (Math.PI / 180);
   rightbackWallTop.scale.y = 0.5;
   scene.add(rightbackWallTop);
   
   const leftbackWallTop = createWall(3, 1, wallThickness, [], false);
-  leftbackWallTop.position.set(-9.49, 6.5, 10.57);
+  leftbackWallTop.position.set(-9.49, 7.5, 10.57);
   leftbackWallTop.rotation.y = -10 * (Math.PI / 180);
   leftbackWallTop.scale.y = 0.5;
   scene.add(leftbackWallTop);

@@ -56,7 +56,134 @@ export function createFloor(width, depth) {
   return floor;
 }
 
-// --- 2. WALLS & WINDOWS HELPER ---
+// --- 2. CEILING ---
+
+function createPendantLight() {
+  const group = new THREE.Group();
+
+  const blackMat = new THREE.MeshStandardMaterial({
+    color: 0x111111,
+    roughness: 0.6,
+    metalness: 0.1
+  });
+  
+  const chromeMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.2,
+    metalness: 0.9
+  });
+
+  const bulbMat = new THREE.MeshBasicMaterial({
+    color: 0xffffee
+  });
+
+  const mountGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.02, 32);
+  const mount = new THREE.Mesh(mountGeo, blackMat);
+  mount.position.y = -0.01; 
+  mount.castShadow = true;
+  group.add(mount);
+
+  const stemLen = 0.15;
+  const stemGeo = new THREE.CylinderGeometry(0.015, 0.015, stemLen, 16);
+  const stem = new THREE.Mesh(stemGeo, blackMat);
+  stem.position.y = -0.02 - (stemLen / 2);
+  stem.castShadow = true;
+  group.add(stem);
+
+  const bodyHeight = 0.35;
+  const bodyRadius = 0.14;
+  const bodyGeo = new THREE.CylinderGeometry(bodyRadius, bodyRadius, bodyHeight, 32);
+  const body = new THREE.Mesh(bodyGeo, blackMat);
+  const bodyY = stem.position.y - (stemLen / 2) - (bodyHeight / 2);
+  body.position.y = bodyY;
+  body.castShadow = true;
+  group.add(body);
+
+  const rimHeight = 0.02;
+  const rimGeo = new THREE.CylinderGeometry(bodyRadius - 0.02, bodyRadius - 0.02, rimHeight, 32);
+  const rim = new THREE.Mesh(rimGeo, chromeMat);
+  rim.position.y = bodyY - (bodyHeight / 2) + 0.001
+  group.add(rim);
+
+  const bulbGeo = new THREE.CircleGeometry(bodyRadius - 0.04, 32);
+  const bulb = new THREE.Mesh(bulbGeo, bulbMat);
+  bulb.rotation.x = -Math.PI / 2;
+  bulb.position.y = bodyY - (bodyHeight / 2) + 0.01;
+  group.add(bulb);
+
+  const spotLight = new THREE.SpotLight(0xfff4e5, 20);
+  spotLight.position.set(0, bodyY, 0);
+  spotLight.target.position.set(0, -10, 0);
+  
+  spotLight.angle = Math.PI / 5;
+  spotLight.penumbra = 0.4;
+  spotLight.decay = 1;
+  spotLight.distance = 15;
+  
+  spotLight.castShadow = true;
+  spotLight.shadow.mapSize.width = 512;
+  spotLight.shadow.mapSize.height = 512;
+  spotLight.shadow.bias = -0.0001;
+
+  group.add(spotLight);
+  group.add(spotLight.target);
+
+  return group;
+}
+
+function createCeiling(width, depth) {
+  const ceilingGroup = new THREE.Group();
+
+  const beamHeight = 0.6;
+  const beamWidth = 0.4;
+  const numBaysX = 2;
+  const numBaysZ = 2;
+
+  const whiteCeilingMat = new THREE.MeshStandardMaterial({ color: 0xfdf5e6, roughness: 0.9 });
+  const orangeBeamMat = new THREE.MeshStandardMaterial({ color: 0xffcc99, roughness: 0.8 }); // Peach/Orange color
+
+  const planeGeo = new THREE.BoxGeometry(width, 0.05, depth);
+  const plane = new THREE.Mesh(planeGeo, whiteCeilingMat);
+  plane.position.y = beamHeight + 0.025; 
+  plane.receiveShadow = true;
+  ceilingGroup.add(plane);
+
+  const beamY = beamHeight / 2;
+  const spacingX = width / numBaysX;
+  for (let i = 0; i <= numBaysX; i++) {
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(beamWidth, beamHeight, depth), orangeBeamMat);
+    beam.position.set((-width / 2) + (i * spacingX), beamY, 0);
+    beam.castShadow = true;
+    beam.receiveShadow = true;
+    ceilingGroup.add(beam);
+  }
+
+  const spacingZ = depth / numBaysZ;
+  for (let j = 0; j <= numBaysZ; j++) {
+    const crossBeam = new THREE.Mesh(
+        new THREE.BoxGeometry(width, beamHeight - 0.02, beamWidth), 
+        orangeBeamMat
+    );
+    crossBeam.position.set(0, beamY - 0.01, (-depth / 2) + (j * spacingZ));
+    crossBeam.castShadow = true;
+    crossBeam.receiveShadow = true;
+    ceilingGroup.add(crossBeam);
+  }
+
+  for (let i = 0; i < numBaysX; i++) {
+    for (let j = 0; j < numBaysZ; j++) {
+      const light = createPendantLight();
+      const bayCenterX = (-width / 2) + (spacingX * (i + 0.5));
+      const bayCenterZ = (-depth / 2) + (spacingZ * (j + 0.5));
+      light.position.set(bayCenterX, beamHeight - 0.2, bayCenterZ);
+      ceilingGroup.add(light);
+    }
+  }
+
+  return ceilingGroup;
+}
+
+// --- 3. WALLS & WINDOWS HELPER ---
 
 /**
  * Membuat Dinding (Solid atau dengan Lubang Jendela)
@@ -250,6 +377,10 @@ export function createRoom(scene) {
 
   const wallHeight = 7;
   const wallThickness = 0.5;
+
+  const ceiling = createCeiling(floorSize_X - 1, floorSize_Z - 11);
+  ceiling.position.set(-0.5, wallHeight, -0.5);
+  scene.add(ceiling);
 
   const winConfigFront = [
     { x: -3.5, width: 4, height: 4, y: 4 }, 

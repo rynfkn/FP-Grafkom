@@ -8,7 +8,7 @@ import { createBench } from "./furniture.js";
 import { createWallMagazine } from "./furniture.js";
 import { createTV } from "./furniture.js";
 import { createCoffeeMachine } from "./coffeeMachine.js";
-import { loadHelmet, loadMotorcycleHelmet } from "./loader.js";
+import { loadHelmet, loadMotorcycleHelmet, loadTrashCan, loadBathroomSink } from "./loader.js";
 
 import { loadVendingMachine } from "./loader.js";
 
@@ -280,6 +280,8 @@ scene.add(TV);
 // Load Vending Machine
 // --------------------------------------------------
 loadVendingMachine(scene);
+loadTrashCan(scene);
+loadBathroomSink(scene);
 
 // --------------------------------------------------
 // Coffee Machine

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Small Office Trash Can
+* source:	https://sketchfab.com/3d-models/small-office-trash-can-8c3157c05951448ea20da62f2e0f6e81
+* author:	amhyde (https://sketchfab.com/amhyde)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Small Office Trash Can" (https://sketchfab.com/3d-models/small-office-trash-can-8c3157c05951448ea20da62f2e0f6e81) by amhyde (https://sketchfab.com/amhyde) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

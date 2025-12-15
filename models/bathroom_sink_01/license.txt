@@ -1,0 +1,11 @@
+Model Information:
+* title:	Bathroom Sink 01
+* source:	https://sketchfab.com/3d-models/bathroom-sink-01-2568c7d17d894bc7974b62cf93da0b48
+* author:	OliverMatheGames (https://sketchfab.com/OliverMatheGames)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Bathroom Sink 01" (https://sketchfab.com/3d-models/bathroom-sink-01-2568c7d17d894bc7974b62cf93da0b48) by OliverMatheGames (https://sketchfab.com/OliverMatheGames) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

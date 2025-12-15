@@ -91,3 +91,41 @@ export function loadMotorcycleHelmet(scene) {
         }
     );
 }
+
+export function loadTrashCan(scene) {
+    const loader = new GLTFLoader();
+
+    loader.load(
+        'models/small_office_trash_can/scene.gltf',
+        function (gltf) {
+            const sink = gltf.scene;
+
+            const scaleFactor = 2.5; 
+            sink.scale.set(scaleFactor, scaleFactor, scaleFactor);
+            
+            sink.updateMatrixWorld(); 
+            
+            const box = new THREE.Box3().setFromObject(sink);
+            const yOffset = -box.min.y;
+            
+            // Position it somewhere reasonable, e.g., near a wall
+            sink.position.set(-8.5, yOffset, -11); 
+            sink.rotation.y = Math.PI / 2;
+
+            sink.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+
+            scene.add(sink);
+            console.log('Trash can loaded.');
+        },
+        undefined,
+        function (error) {
+            console.error('Error loading trash can:', error);
+        }
+    );
+}
+

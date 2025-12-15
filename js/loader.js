@@ -40,3 +40,54 @@ export function loadVendingMachine(scene) {
         }
     );
 }
+
+
+export function loadHelmet(scene) {
+    const loader = new GLTFLoader();
+
+    loader.load(
+        'models/moto_helmet/scene.gltf',
+        function (gltf) {
+            const helmet = gltf.scene;
+            const scaleFactor = 1.2;
+            helmet.scale.set(scaleFactor, scaleFactor, scaleFactor);
+            helmet.position.set(-4.5, 2.2, -7.5);
+            helmet.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }   
+            });
+            scene.add(helmet);
+        },
+        undefined,
+        function (error) {
+            console.error('Error loading helmet:', error);
+        }
+    );
+}
+
+export function loadMotorcycleHelmet(scene) {
+    const loader = new GLTFLoader();
+    
+    loader.load(
+        'models/motorcycle_helmet/scene.gltf',
+        function (gltf) {
+            const motorcycleHelmet = gltf.scene;
+            const scaleFactor = 0.3;
+            motorcycleHelmet.scale.set(scaleFactor, scaleFactor, scaleFactor);
+            motorcycleHelmet.position.set(-3.5, 2.5, -8);
+            motorcycleHelmet.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+            scene.add(motorcycleHelmet);
+        },
+        undefined,
+        function (error) {
+            console.error('Error loading motorcycle helmet:', error);
+        }
+    );
+}

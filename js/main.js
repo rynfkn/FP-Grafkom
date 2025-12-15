@@ -8,6 +8,7 @@ import { createBench } from "./furniture.js";
 import { createWallMagazine } from "./furniture.js";
 import { createTV } from "./furniture.js";
 import { createCoffeeMachine } from "./coffeeMachine.js";
+import { loadHelmet, loadMotorcycleHelmet } from "./loader.js";
 
 import { loadVendingMachine } from "./loader.js";
 
@@ -219,6 +220,12 @@ bench14.position.set(-7, 0, 8.7);
 bench14.rotation.y = Math.PI / 2 - 10 * (Math.PI / 180);
 bench14.scale.set(1.3, 1.3, 1.3);
 scene.add(bench14);
+
+// --------------------------------------------------
+// Load Helmet Model
+// --------------------------------------------------
+loadHelmet(scene);
+loadMotorcycleHelmet(scene);
 
 // --------------------------------------------------
 // Wall Magazine

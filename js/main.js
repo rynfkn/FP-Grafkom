@@ -7,6 +7,7 @@ import { createPedestalTable } from "./furniture.js";
 import { createBench } from "./furniture.js";
 import { createWallMagazine } from "./furniture.js";
 import { createTV } from "./furniture.js";
+import { createCoffeeMachine } from "./coffeeMachine.js";
 
 import { loadVendingMachine } from "./loader.js";
 
@@ -272,6 +273,15 @@ scene.add(TV);
 // Load Vending Machine
 // --------------------------------------------------
 loadVendingMachine(scene);
+
+// --------------------------------------------------
+// Coffee Machine
+// --------------------------------------------------
+const coffeeMachine = createCoffeeMachine();
+coffeeMachine.scale.set(0.5, 0.5, 0.5);
+coffeeMachine.position.set(8.25, 0, 8);
+coffeeMachine.rotation.y = -(Math.PI / 2);
+scene.add(coffeeMachine);
 
 // --------------------------------------------------
 // Resize
